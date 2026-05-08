@@ -5,11 +5,12 @@ import { JHARKHAND_IMAGES } from '@/data/images.data'
 
 export default function SectionHero() {
   return (
-    <div className="relative w-full h-full [&_h2]:!text-black">
+    <section className="relative w-full h-screen [&_h2]:!text-black overflow-hidden">
       <ScrollExpandMedia
-        mediaType="image"
-        mediaSrc={JHARKHAND_IMAGES[1]}
-        bgImageSrc={JHARKHAND_IMAGES[1]}
+        mediaType="video"
+        mediaSrc="/assets/hero-vid.mp4"
+        posterSrc="/assets/hero-vid-poster.png"
+        bgImageSrc="/assets/hero-vid-poster.png"
         title="JHARKHAND"
         scrollToExpand="SCROLL TO ENTER"
         textBlend={false}
@@ -23,7 +24,7 @@ export default function SectionHero() {
           INDIA&apos;S BEST KEPT SECRET
         </p>
       </div>
-    </div>
+    </section>
   )
 }
 

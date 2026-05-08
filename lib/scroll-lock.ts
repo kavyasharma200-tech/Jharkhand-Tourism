@@ -1,39 +1,38 @@
 'use client';
 
 /**
- * ScrollLock — global singleton that sections can call to lock/unlock
- * the page scroll while an animation is in progress.
- *
- * Usage:
- *   scrollLock.lock()    → disables wheel + touch scroll
- *   scrollLock.unlock()  → re-enables scroll
- *   scrollLock.isLocked  → boolean
+ * scrollLock — global singleton.
+ * Sections call lock() when their GSAP animation starts and unlock() when done.
+ * While locked, ALL wheel / touch / key scroll is fully suppressed.
  */
 
-let locked = false;
+type Handler = (e: Event) => void;
 
-const preventScroll = (e: Event) => {
+const CANCEL: Handler = (e) => {
   e.preventDefault();
+  e.stopPropagation();
 };
+
+let _locked = false;
 
 export const scrollLock = {
   get isLocked() {
-    return locked;
+    return _locked;
   },
 
   lock() {
-    if (locked) return;
-    locked = true;
-    window.addEventListener('wheel', preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-    document.documentElement.classList.add('scroll-locked');
+    if (_locked) return;
+    _locked = true;
+    window.addEventListener('wheel',     CANCEL, { passive: false, capture: true });
+    window.addEventListener('touchmove', CANCEL, { passive: false, capture: true });
+    window.addEventListener('touchstart',CANCEL, { passive: false, capture: true });
   },
 
   unlock() {
-    if (!locked) return;
-    locked = false;
-    window.removeEventListener('wheel', preventScroll);
-    window.removeEventListener('touchmove', preventScroll);
-    document.documentElement.classList.remove('scroll-locked');
+    if (!_locked) return;
+    _locked = false;
+    window.removeEventListener('wheel',      CANCEL, { capture: true });
+    window.removeEventListener('touchmove',  CANCEL, { capture: true });
+    window.removeEventListener('touchstart', CANCEL, { capture: true });
   },
 };

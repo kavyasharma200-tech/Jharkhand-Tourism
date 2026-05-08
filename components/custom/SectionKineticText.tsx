@@ -1,63 +1,121 @@
-'use client'
+'use client';
 
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+/**
+ * SectionKineticText
+ * Full-viewport black screen. Three enormous lines of text animate in
+ * with staggered slide-up reveals on scroll enter.
+ * On scroll-leave (reverse) they slide back down.
+ */
 export default function SectionKineticText() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const textRef = useRef<HTMLDivElement>(null)
-  const line1Ref = useRef<HTMLHeadingElement>(null)
-  const line2Ref = useRef<HTMLHeadingElement>(null)
-  const line3Ref = useRef<HTMLHeadingElement>(null)
+  const sectionRef = useRef<HTMLElement>(null);
+  const line1Ref = useRef<HTMLDivElement>(null);
+  const line2Ref = useRef<HTMLDivElement>(null);
+  const line3Ref = useRef<HTMLDivElement>(null);
+  const metaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger)
-    
+    gsap.registerPlugin(ScrollTrigger);
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1
-        }
-      })
+          trigger: sectionRef.current,
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+      });
 
-      tl.to(line1Ref.current, { x: -200, rotate: -5, duration: 1 }, 0)
-      tl.to(line2Ref.current, { x: 200, rotate: 5, duration: 1 }, 0)
-      tl.to(line3Ref.current, { x: -150, scale: 1.5, duration: 1 }, 0)
-      
-    }, containerRef)
+      // Slide up from below with clip
+      tl.fromTo(
+        line1Ref.current,
+        { y: '110%', opacity: 0 },
+        { y: '0%', opacity: 1, duration: 1.1, ease: 'expo.out' },
+        0
+      );
+      tl.fromTo(
+        line2Ref.current,
+        { y: '110%', opacity: 0 },
+        { y: '0%', opacity: 1, duration: 1.1, ease: 'expo.out' },
+        0.12
+      );
+      tl.fromTo(
+        line3Ref.current,
+        { y: '110%', opacity: 0 },
+        { y: '0%', opacity: 1, duration: 1.1, ease: 'expo.out' },
+        0.24
+      );
+      tl.fromTo(
+        metaRef.current,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' },
+        0.55
+      );
+    }, sectionRef);
 
-    return () => ctx.revert()
-  }, [])
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full h-screen bg-black overflow-hidden flex flex-col justify-center items-center py-20 px-4">
-      <div ref={textRef} className="w-full max-w-none flex flex-col gap-4 md:gap-0 items-center justify-center">
-        <h2 ref={line1Ref} className="font-['Anton'] text-[20vw] md:text-[18vw] leading-none text-white tracking-tighter uppercase whitespace-nowrap">
-          Waterfalls
-        </h2>
-        <h2 ref={line2Ref} className="font-['Playfair_Display'] text-[18vw] md:text-[15vw] leading-none text-transparent italic font-black uppercase whitespace-nowrap" style={{ WebkitTextStroke: '2px white' }}>
-          Wilderness
-        </h2>
-        <h2 ref={line3Ref} className="font-['DM_Serif_Display'] text-[22vw] md:text-[20vw] leading-none text-white uppercase whitespace-nowrap">
-          Wonders
-        </h2>
+    <section
+      ref={sectionRef}
+      className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center justify-center px-6"
+    >
+      {/* Corner meta labels */}
+      <div className="absolute top-8 left-8 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
+        JHARKHAND / PULSE
+      </div>
+      <div className="absolute top-8 right-8 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
+        09 // 11
+      </div>
+      <div className="absolute bottom-8 left-8 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
+        EDITORIAL / ARCHIVE
       </div>
 
-      {/* Brutalist Elements */}
-      <div className="absolute top-10 left-10 text-white/40 font-['Space_Mono'] text-[10px] uppercase tracking-[0.4em]">
-        JHARKHAND / KINETIC PULSE
-      </div>
-      
-      <div className="absolute bottom-10 right-10 text-white flex flex-col items-end">
-        <span className="font-['Space_Mono'] text-[8px] opacity-50 mb-2 uppercase">Editorial Perspective</span>
-        <div className="w-40 h-1 bg-white" />
+      {/* Three kinetic lines — clip-overflow so slide-up works */}
+      <div className="w-full flex flex-col items-center -space-y-3 md:-space-y-8 overflow-hidden">
+        <div className="overflow-hidden w-full text-center">
+          <div ref={line1Ref}>
+            <span className="font-['Anton'] text-[21vw] leading-none text-white tracking-tighter uppercase whitespace-nowrap">
+              WATERFALLS
+            </span>
+          </div>
+        </div>
+
+        <div className="overflow-hidden w-full text-center">
+          <div ref={line2Ref}>
+            <span
+              className="font-['Playfair_Display'] text-[17vw] leading-none text-transparent italic font-black uppercase whitespace-nowrap"
+              style={{ WebkitTextStroke: '1.5px white' }}
+            >
+              WILDERNESS
+            </span>
+          </div>
+        </div>
+
+        <div className="overflow-hidden w-full text-center">
+          <div ref={line3Ref}>
+            <span className="font-['DM_Serif_Display'] text-[23vw] leading-none text-white uppercase whitespace-nowrap">
+              WONDERS
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] border border-white/10 pointer-events-none" />
+      {/* Subtitle */}
+      <div ref={metaRef} className="mt-12 flex flex-col items-center gap-3">
+        <div className="w-px h-12 bg-white/20" />
+        <p className="font-['Space_Mono'] text-[9px] text-white/30 tracking-[0.5em] uppercase italic">
+          The kinetic heart of the east
+        </p>
+      </div>
+
+      {/* Side accent lines */}
+      <div className="absolute left-8 top-1/2 -translate-y-1/2 w-px h-48 bg-white/10" />
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 w-px h-48 bg-white/10" />
     </section>
-  )
+  );
 }
