@@ -44,8 +44,9 @@ function FlipCard({
             }}
             transition={{
                 type: "spring",
-                stiffness: 40,
-                damping: 15,
+                stiffness: 60,
+                damping: 18,
+                mass: 0.8,
             }}
 
             // Initial style

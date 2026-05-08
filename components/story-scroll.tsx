@@ -22,7 +22,7 @@ export const FlowSection: React.FC<FlowSectionProps> = ({
   children,
   'aria-label': ariaLabel,
 }) => (
-  <section
+  <div
     data-flow-section
     aria-label={ariaLabel}
     className={cx('relative min-h-screen w-full overflow-hidden', className)}
@@ -37,7 +37,7 @@ export const FlowSection: React.FC<FlowSectionProps> = ({
     >
       {children}
     </div>
-  </section>
+  </div>
 );
 
 export interface FlowArtProps {

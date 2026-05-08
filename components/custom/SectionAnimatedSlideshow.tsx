@@ -23,27 +23,39 @@ const slides = [
 export default function SectionAnimatedSlideshow() {
   const containerRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
+  const sliderRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
     const ctx = gsap.context(() => {
-      gsap.from(headerRef.current, {
-        opacity: 0,
-        y: 40,
-        duration: 1.2,
-        ease: 'power3.out',
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: 'top 80%',
+          start: 'top top',
+          end: '+=100%',
+          pin: true,
+          scrub: 1.5,
         }
       })
+
+      tl.from(headerRef.current, {
+        opacity: 0,
+        y: 60,
+        ease: 'power3.out',
+      }, 0)
+
+      tl.from(sliderRef.current, {
+        opacity: 0,
+        x: 60,
+        ease: 'power3.out',
+      }, 0.2)
     }, containerRef)
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={containerRef} className="relative min-h-screen bg-white flex flex-col justify-center overflow-hidden border-t border-black/5">
-      <div ref={headerRef} className="px-8 md:px-24 pt-24 pb-8">
+    <section ref={containerRef} className="relative w-full h-screen bg-white flex flex-col justify-center overflow-hidden border-t border-black/5 px-8 md:px-24">
+      <div ref={headerRef} className="pt-24 pb-8">
         <h2 className="font-['Anton'] text-[10vw] md:text-[8vw] leading-none text-black tracking-tight mb-4 uppercase">
           Wonders
         </h2>
@@ -52,7 +64,7 @@ export default function SectionAnimatedSlideshow() {
         </p>
       </div>
 
-      <div className="px-8 md:px-24">
+      <div ref={sliderRef} className="w-full">
         <HoverSlider className="w-full flex flex-col md:flex-row items-stretch border-t border-black/10">
           {/* Left: Text list, 50% */}
           <div className="w-full md:w-1/2 flex flex-col justify-center py-24 z-10 relative">

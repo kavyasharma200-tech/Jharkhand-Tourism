@@ -6,56 +6,49 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { JHARKHAND_IMAGES } from '@/data/images.data';
 
 const CARDS = [
-  { src: JHARKHAND_IMAGES[16], title: 'NETARHAT',  sub: 'Queen of Chotanagpur',     tag: '01 / HIGHLANDS' },
-  { src: JHARKHAND_IMAGES[17], title: 'GHAGHRI',   sub: 'Lower falls at dusk',       tag: '02 / WATERFALLS' },
-  { src: JHARKHAND_IMAGES[20], title: 'BURUDI',    sub: 'The quiet eastern mirror',  tag: '03 / LAKES' },
-  { src: JHARKHAND_IMAGES[21], title: 'RANKINI',   sub: 'Ancient stones, living faith', tag: '04 / TEMPLES' },
+  { src: JHARKHAND_IMAGES[16], title: 'NETARHAT',  sub: 'Queen of Chotanagpur',     tag: '01' },
+  { src: JHARKHAND_IMAGES[17], title: 'GHAGHRI',   sub: 'Lower falls at dusk',       tag: '02' },
+  { src: JHARKHAND_IMAGES[20], title: 'BURUDI',    sub: 'The quiet eastern mirror',  tag: '03' },
+  { src: JHARKHAND_IMAGES[21], title: 'RANKINI',   sub: 'Ancient stones, living faith', tag: '04' },
 ];
 
-/**
- * SectionStaggeredReveal
- * Dark section, 2×2 editorial card grid.
- * Each card slides in from below with staggered GSAP on scroll enter.
- * Cards are precisely aligned with offset rows for depth.
- */
 export default function SectionStaggeredReveal() {
   const sectionRef = useRef<HTMLElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const headRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // Heading
-      gsap.fromTo(
-        headRef.current,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1, y: 0, duration: 0.9, ease: 'expo.out',
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 70%', toggleActions: 'play none none reverse' },
-        }
-      );
+      const heading = sectionRef.current!.querySelector<HTMLElement>('[data-reveal-heading]');
+      const cards = gsap.utils.toArray<HTMLElement>('[data-reveal-card]', sectionRef.current!);
 
-      // Cards stagger
-      cardsRef.current.forEach((card, i) => {
-        if (!card) return;
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 70, scale: 0.96 },
-          {
-            opacity: 1, y: 0, scale: 1,
-            duration: 1.1,
-            ease: 'expo.out',
-            delay: i * 0.1,
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top 65%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
+      gsap.set(heading, { opacity: 0, y: 40 });
+      gsap.set(cards, { opacity: 0, y: 80, scale: 0.95 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 65%',
+          end: 'center 30%',
+          scrub: 1.6,
+        },
       });
+
+      tl.to(heading, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'expo.out',
+      }, 0);
+
+      tl.to(cards, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1,
+        ease: 'expo.out',
+        stagger: 0.12,
+      }, 0.1);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -64,10 +57,10 @@ export default function SectionStaggeredReveal() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-screen bg-neutral-950 overflow-hidden py-32 px-8 md:px-24"
+      className="relative w-full min-h-screen bg-neutral-950 overflow-hidden py-32 px-8 md:px-24 border-t border-white/5"
     >
       {/* Section header */}
-      <div ref={headRef} className="mb-16 flex justify-between items-end">
+      <div data-reveal-heading className="mb-16 flex justify-between items-end">
         <div>
           <p className="font-['Space_Mono'] text-[8px] text-white/30 tracking-[0.6em] uppercase mb-4">
             COLLECTION
@@ -86,7 +79,7 @@ export default function SectionStaggeredReveal() {
         {CARDS.map((card, i) => (
           <div
             key={card.title}
-            ref={(el) => { cardsRef.current[i] = el; }}
+            data-reveal-card
             className={`flex flex-col ${i % 2 !== 0 ? 'md:mt-24' : ''}`}
           >
             {/* Image */}
