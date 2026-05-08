@@ -45,10 +45,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${anton.variable} ${spaceMono.variable} ${cormorant.variable} ${instrument.variable} ${bodoni.variable}`}
     >
       <body className="bg-white text-black overflow-x-hidden">
-        <LenisProvider>
-          <GrainOverlay />
-          {children}
-        </LenisProvider>
+        {/* Mobile Blocker */}
+        <div className="flex lg:hidden flex-col items-center justify-center h-screen w-screen bg-black text-white p-8 text-center z-[99999] relative">
+          <h1 className="font-['Anton'] text-5xl mb-4 uppercase tracking-tight">Only available on desktop</h1>
+          <p className="font-['Space_Mono'] text-[10px] tracking-[0.3em] uppercase text-white/50">Other devices coming soon.</p>
+        </div>
+
+        {/* Desktop Content */}
+        <div className="hidden lg:block w-full h-full">
+          <LenisProvider>
+            <GrainOverlay />
+            {children}
+          </LenisProvider>
+        </div>
       </body>
     </html>
   )
