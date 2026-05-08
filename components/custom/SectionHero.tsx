@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef } from 'react';
 import ScrollExpandMedia from '@/components/scroll-expansion-hero';
 
 export default function SectionHero() {
@@ -19,9 +17,7 @@ export default function SectionHero() {
         title="JHARKHAND"
         textBlend={false}
       >
-        <p className="font-['Space_Mono'] text-xs tracking-[0.3em] text-white/60 uppercase">
-          THE SOUL OF INDIA — FORESTS, FALLS &amp; FIRE
-        </p>
+        THE SOUL OF INDIA
       </ScrollExpandMedia>
     </section>
   );
