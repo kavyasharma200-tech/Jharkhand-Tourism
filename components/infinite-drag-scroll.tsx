@@ -1,7 +1,7 @@
 'use client';
 
-import { useMotionValue, motion } from 'framer-motion';
-import { memo, useContext, useEffect, useRef, createContext } from 'react';
+import { useMotionValue, motion, animate } from 'framer-motion';
+import { memo, useContext, useEffect, useRef, createContext, useState } from 'react';
 import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
@@ -89,7 +89,7 @@ export const GridItem = ({
       variants: {
         variant: {
           default: 'rounded-sm',
-          masonry: 'even:mt-[60%] rounded-sm',
+          masonry: 'even:mt-[40%] rounded-sm',
           polaroid:
             'border-10 border-b-28 border-white shadow-xl even:rotate-3 odd:-rotate-2 hover:rotate-0 transition-transform ease-out duration-300 even:mt-[60%]',
         },
@@ -117,12 +117,12 @@ export const GridBody = memo(
   }) => {
     const variant = useContext(GridVariantContext);
 
-    const gridBodyStyles = cva('grid grid-cols-[repeat(6,1fr)] h-fit w-fit', {
+    const gridBodyStyles = cva('grid grid-cols-[repeat(10,1fr)] h-fit w-fit', {
       variants: {
         variant: {
-          default: 'gap-14 p-7 md:gap-28 md:p-14',
-          masonry: 'gap-x-14 px-7 md:gap-x-28 md:px-14',
-          polaroid: 'gap-x-14 px-7 md:gap-x-28 md:px-14',
+          default: 'gap-10 p-5 md:gap-20 md:p-10',
+          masonry: 'gap-x-10 px-5 md:gap-x-20 md:px-10',
+          polaroid: 'gap-x-10 px-5 md:gap-x-20 md:px-10',
         },
       },
       defaultVariants: {
