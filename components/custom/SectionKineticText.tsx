@@ -14,7 +14,6 @@ export default function SectionKineticText() {
       const lines = gsap.utils.toArray<HTMLElement>('[data-kinetic-line]', sectionRef.current!);
       const meta = sectionRef.current!.querySelector<HTMLElement>('[data-kinetic-meta]');
 
-      // Set initial hidden state — clip-masked below their containers
       gsap.set(lines, { yPercent: 110, opacity: 0 });
       gsap.set(meta, { opacity: 0, y: 20 });
 
@@ -27,22 +26,9 @@ export default function SectionKineticText() {
         },
       });
 
-      tl.to(lines, {
-        yPercent: 0,
-        opacity: 1,
-        duration: 1.2,
-        ease: 'expo.out',
-        stagger: 0.15,
-      }, 0);
+      tl.to(lines, { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: 0.15 }, 0);
+      tl.to(meta, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0.5);
 
-      tl.to(meta, {
-        opacity: 1,
-        y: 0,
-        duration: 0.9,
-        ease: 'power3.out',
-      }, 0.5);
-
-      // Letters drift slightly left as you scroll past
       lines.forEach((line, i) => {
         const dir = i % 2 === 0 ? -1 : 1;
         gsap.to(line, {
@@ -66,7 +52,6 @@ export default function SectionKineticText() {
       ref={sectionRef}
       className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center justify-center px-8 md:px-24 border-t border-white/5"
     >
-      {/* Corner meta */}
       <div className="absolute top-10 left-8 md:left-24 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
         JHARKHAND
       </div>
@@ -74,7 +59,6 @@ export default function SectionKineticText() {
         ARCHIVE
       </div>
 
-      {/* Three kinetic lines — clip-overflow so slide-up works */}
       <div className="w-full flex flex-col items-center -space-y-3 md:-space-y-8 overflow-hidden">
         <div className="overflow-hidden w-full text-center">
           <div data-kinetic-line>
@@ -83,7 +67,6 @@ export default function SectionKineticText() {
             </span>
           </div>
         </div>
-
         <div className="overflow-hidden w-full text-center">
           <div data-kinetic-line>
             <span
@@ -94,7 +77,6 @@ export default function SectionKineticText() {
             </span>
           </div>
         </div>
-
         <div className="overflow-hidden w-full text-center">
           <div data-kinetic-line>
             <span className="font-['DM_Serif_Display'] text-[23vw] leading-none text-white uppercase whitespace-nowrap">
@@ -104,7 +86,6 @@ export default function SectionKineticText() {
         </div>
       </div>
 
-      {/* Subtitle */}
       <div data-kinetic-meta className="mt-12 flex flex-col items-center gap-3">
         <div className="w-px h-12 bg-white/20" />
         <p className="font-['Space_Mono'] text-[9px] text-white/30 tracking-[0.5em] uppercase italic">
@@ -112,7 +93,6 @@ export default function SectionKineticText() {
         </p>
       </div>
 
-      {/* Side accent lines */}
       <div className="absolute left-8 top-1/2 -translate-y-1/2 w-px h-48 bg-white/10" />
       <div className="absolute right-8 top-1/2 -translate-y-1/2 w-px h-48 bg-white/10" />
     </section>

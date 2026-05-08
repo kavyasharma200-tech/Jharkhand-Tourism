@@ -22,30 +22,17 @@ export default function HomePage() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    /* ─── Lenis ↔ GSAP Ticker ────────────────────────────── */
-    let rafId: number;
+    let rafId: number | undefined;
+
     const tickerUpdate = (time: number) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis;
       if (lenis) lenis.raf(time * 1000);
     };
 
-    const waitForLenis = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const lenis = (window as any).__lenis;
-      if (lenis) {
-        // Drive Lenis manually through GSAP ticker
-        gsap.ticker.add(tickerUpdate);
-        gsap.ticker.lagSmoothing(0);
-        initSnapping(lenis);
-      } else {
-        rafId = requestAnimationFrame(waitForLenis);
-      }
-    };
-
-    /* ─── Strict One-At-A-Time Navigation ─────────────────── */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function initSnapping(lenis: any) {
-      const sections = gsap.utils.toArray('section') as HTMLElement[];
+      const sections = gsap.utils.toArray<HTMLElement>('section');
       if (!sections.length) return;
 
       ScrollTrigger.normalizeScroll(true);
@@ -56,7 +43,6 @@ export default function HomePage() {
         if (isAnimating || index < 0 || index >= sections.length) return;
         isAnimating = true;
         currentIdx = index;
-
         lenis.scrollTo(sections[index], {
           duration: 1.2,
           easing: (t: number) => 1 - Math.pow(1 - t, 4),
@@ -67,35 +53,30 @@ export default function HomePage() {
         });
       };
 
-      // Observe intent
       const observer = ScrollTrigger.observe({
-        type: "wheel,touch,pointer",
+        type: 'wheel,touch,pointer',
         wheelSpeed: 1,
         onDown: () => {
           if (isAnimating) return;
-          
-          // Check current section for pinning/scrubbing progress
-          const activeST = ScrollTrigger.getAll().find(st => st.trigger === sections[currentIdx]);
-          if (activeST && activeST.progress < 0.99) {
-             // Let real scroll happen for scrubbing
-             return;
-          }
+          const activeST = ScrollTrigger.getAll().find(
+            (st) => st.trigger === sections[currentIdx]
+          );
+          if (activeST && activeST.progress < 0.99) return;
           goTo(currentIdx + 1);
         },
         onUp: () => {
           if (isAnimating) return;
-
-          const activeST = ScrollTrigger.getAll().find(st => st.trigger === sections[currentIdx]);
-          if (activeST && activeST.progress > 0.01) {
-             // Let real scroll happen for scrubbing back
-             return;
-          }
+          const activeST = ScrollTrigger.getAll().find(
+            (st) => st.trigger === sections[currentIdx]
+          );
+          if (activeST && activeST.progress > 0.01) return;
           goTo(currentIdx - 1);
         },
         tolerance: 20,
-        preventDefault: false
+        preventDefault: false,
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).__snapCleanup = () => {
         observer.kill();
         lenis.start();
@@ -104,11 +85,23 @@ export default function HomePage() {
       lenis.start();
     }
 
+    const waitForLenis = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const lenis = (window as any).__lenis;
+      if (lenis) {
+        gsap.ticker.add(tickerUpdate);
+        gsap.ticker.lagSmoothing(0);
+        initSnapping(lenis);
+      } else {
+        rafId = requestAnimationFrame(waitForLenis);
+      }
+    };
+
     waitForLenis();
 
     return () => {
       gsap.ticker.remove(tickerUpdate);
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId !== undefined) cancelAnimationFrame(rafId);
       ScrollTrigger.getAll().forEach((t) => t.kill());
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cleanup = (window as any).__snapCleanup;

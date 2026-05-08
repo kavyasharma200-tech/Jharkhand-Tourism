@@ -1,33 +1,33 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import IntroAnimation from '@/components/scroll-morph-hero'
+import { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import IntroAnimation from '@/components/scroll-morph-hero';
 
 export default function SectionMorphText() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const sectionRef = useRef<HTMLElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger)
+    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: 'top top',
-        end: '+=250%',        // 3.5× viewport of pinning scroll room
+        end: '+=250%',
         pin: true,
         pinSpacing: true,
-        scrub: 1.8,            // generous lag for buttery momentum
+        scrub: 1.8,
         onUpdate: (self) => {
-          setScrollProgress(self.progress)
+          setScrollProgress(self.progress);
         },
-      })
-    })
+      });
+    });
 
-    return () => ctx.revert()
-  }, [])
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
@@ -36,5 +36,5 @@ export default function SectionMorphText() {
     >
       <IntroAnimation scrollProgress={scrollProgress} />
     </section>
-  )
+  );
 }

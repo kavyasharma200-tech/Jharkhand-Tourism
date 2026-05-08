@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { motion, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState, useEffect, useMemo, useRef } from "react";
+import { motion, useSpring, useMotionValue } from "framer-motion";
 import { JHARKHAND_IMAGES } from "@/data/images.data";
 
 // --- Types ---
@@ -29,8 +27,10 @@ const IMG_HEIGHT = 85; // Reduced from 140
 function FlipCard({
     src,
     index,
-    total,
-    phase,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    total: _total,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    phase: _phase,
     target,
 }: FlipCardProps) {
     return (
@@ -97,7 +97,6 @@ function FlipCard({
 
 // --- Main Hero Component ---
 const TOTAL_IMAGES = 20;
-const MAX_SCROLL = 3000; // Virtual scroll range
 
 // Jharkhand Images
 const IMAGES = JHARKHAND_IMAGES;

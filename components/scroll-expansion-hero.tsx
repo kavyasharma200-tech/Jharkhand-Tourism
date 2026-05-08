@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, ReactNode } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { useEffect, useRef, ReactNode, RefObject } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -13,10 +12,10 @@ interface ScrollExpandMediaProps {
   title?: string;
   textBlend?: boolean;
   children?: ReactNode;
-  containerRef?: React.RefObject<HTMLDivElement>;
+  containerRef?: RefObject<HTMLElement>;
 }
 
-const ScrollExpandMedia = ({
+export default function ScrollExpandMedia({
   mediaType = 'video',
   mediaSrc,
   posterSrc,
@@ -24,21 +23,14 @@ const ScrollExpandMedia = ({
   title,
   textBlend,
   children,
-  containerRef: externalContainerRef,
-}: ScrollExpandMediaProps) => {
-  const internalContainerRef = useRef<HTMLDivElement>(null);
-  const containerRef = externalContainerRef || internalContainerRef;
-  const mediaRef = useRef<HTMLDivElement>(null);
+  containerRef: externalRef,
+}: ScrollExpandMediaProps) {
+  const internalRef = useRef<HTMLElement>(null);
+  const ref = externalRef ?? internalRef;
+
+  const mediaWrapRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -46,7 +38,7 @@ const ScrollExpandMedia = ({
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: containerRef.current,
+          trigger: ref.current,
           start: 'top top',
           end: '+=100%',
           scrub: 1.2,
@@ -54,52 +46,32 @@ const ScrollExpandMedia = ({
         },
       });
 
-      tl.to(mediaRef.current, {
-        width: '100vw',
-        height: '100vh',
-        borderRadius: 0,
-        ease: 'none',
-      }, 0);
-
-      tl.to(bgRef.current, {
-        opacity: 0,
-        ease: 'none',
-      }, 0);
-
-      tl.to(textRef.current, {
-        opacity: 0,
-        y: -30,
-        ease: 'power2.in',
-      }, 0);
+      tl.to(mediaWrapRef.current, { width: '100vw', height: '100vh', borderRadius: 0, ease: 'none' }, 0);
+      tl.to(bgRef.current, { opacity: 0, ease: 'none' }, 0);
+      tl.to(textRef.current, { opacity: 0, y: -30, ease: 'power2.in' }, 0);
     });
 
     return () => ctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const firstWord = title ? title.split(' ')[0] : '';
-  const restOfTitle = title ? title.split(' ').slice(1).join(' ') : '';
+  const [firstWord = '', ...rest] = (title ?? '').split(' ');
+  const restOfTitle = rest.join(' ');
 
   return (
-    <div ref={containerRef} className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Background still image that fades out */}
-      <div
-        ref={bgRef}
-        className="absolute inset-0 z-0"
-      >
-        <img
-          src={bgImageSrc}
-          alt="Background"
-          className="w-full h-full object-cover"
-        />
+    <div
+      ref={ref as RefObject<HTMLDivElement>}
+      className="relative w-full h-screen overflow-hidden bg-black"
+    >
+      <div ref={bgRef} className="absolute inset-0 z-0">
+        <img src={bgImageSrc} alt="Background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* Expanding media card */}
       <div className="absolute inset-0 z-10 flex items-center justify-center">
         <div
-          ref={mediaRef}
-          className="relative overflow-hidden rounded-2xl shadow-2xl"
-          style={{ width: isMobile ? '85vw' : '42vw', height: isMobile ? '55vh' : '62vh' }}
+          ref={mediaWrapRef}
+          className="relative overflow-hidden rounded-2xl shadow-2xl w-[85vw] h-[55vh] md:w-[42vw] md:h-[62vh]"
         >
           {mediaType === 'video' ? (
             <video
@@ -112,29 +84,27 @@ const ScrollExpandMedia = ({
               className="w-full h-full object-cover"
             />
           ) : (
-            <img src={mediaSrc} alt={title || ''} className="w-full h-full object-cover" />
+            <img src={mediaSrc} alt={title ?? ''} className="w-full h-full object-cover" />
           )}
-          {/* Dark vignette overlay on video */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         </div>
       </div>
 
-      {/* Text overlay — spreads apart and fades */}
       <div
         ref={textRef}
         className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none select-none"
       >
         <div className={`flex flex-col items-center gap-0 ${textBlend ? 'mix-blend-difference' : ''}`}>
           <span
-            className="font-['Anton'] text-[18vw] md:text-[14vw] leading-none uppercase text-transparent"
-            style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.85)' }}
+            className="font-['Anton'] text-[18vw] md:text-[14vw] leading-none uppercase"
+            style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.85)', color: 'transparent' }}
           >
             {firstWord}
           </span>
           {restOfTitle && (
             <span
-              className="font-['Anton'] text-[18vw] md:text-[14vw] leading-none uppercase text-transparent"
-              style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.85)' }}
+              className="font-['Anton'] text-[18vw] md:text-[14vw] leading-none uppercase"
+              style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.85)', color: 'transparent' }}
             >
               {restOfTitle}
             </span>
@@ -148,6 +118,4 @@ const ScrollExpandMedia = ({
       </div>
     </div>
   );
-};
-
-export default ScrollExpandMedia;
+}
