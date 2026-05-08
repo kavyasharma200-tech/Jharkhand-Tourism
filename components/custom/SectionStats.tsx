@@ -34,8 +34,9 @@ export default function SectionStats() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 65%',
-          end: 'top 20%',
+          start: 'top top',
+          end: '+=120%',
+          pin: true,
           scrub: 1.4,
         },
       });

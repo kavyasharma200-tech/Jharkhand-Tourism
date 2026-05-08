@@ -33,8 +33,9 @@ export default function SectionStaggeredReveal() {
       const entranceTL = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 65%',
-          end: 'top 10%',
+          start: 'top top',
+          end: '+=150%',
+          pin: true,
           scrub: 1.5,
         },
       });
@@ -117,7 +118,7 @@ export default function SectionStaggeredReveal() {
                 <h3 className="font-['Anton'] text-3xl md:text-4xl text-white tracking-tight uppercase">
                   {card.title}
                 </h3>
-                <p className="font-['DM_Serif_Display'] text-sm text-white/30 mt-1 italic">{card.sub}</p>
+                <p className="font-['var(--font-instrument)'] font-serif text-sm text-white/30 mt-1 italic">{card.sub}</p>
               </div>
               <span className="font-['Space_Mono'] text-[10px] text-white/15">
                 {String(i + 1).padStart(2, '0')}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '@/components/custom/Navbar';
@@ -17,100 +17,91 @@ import SectionStaggeredReveal from '@/components/custom/SectionStaggeredReveal';
 import Footer from '@/components/custom/Footer';
 
 export default function HomePage() {
-  const mainRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
+    // Connect Lenis to GSAP ticker
     let rafId: number | undefined;
-
-    const tickerUpdate = (time: number) => {
+    const tickerFn = (time: number) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis;
       if (lenis) lenis.raf(time * 1000);
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function initSnapping(lenis: any) {
-      const sections = gsap.utils.toArray<HTMLElement>('section');
-      if (!sections.length) return;
-
-      ScrollTrigger.normalizeScroll(true);
-      let currentIdx = 0;
-      let isAnimating = false;
-
-      const goTo = (index: number) => {
-        if (isAnimating || index < 0 || index >= sections.length) return;
-        isAnimating = true;
-        currentIdx = index;
-        lenis.scrollTo(sections[index], {
-          duration: 1.2,
-          easing: (t: number) => 1 - Math.pow(1 - t, 4),
-          onComplete: () => {
-            isAnimating = false;
-            ScrollTrigger.refresh();
-          },
-        });
-      };
-
-      const observer = ScrollTrigger.observe({
-        type: 'wheel,touch,pointer',
-        wheelSpeed: 1,
-        onDown: () => {
-          if (isAnimating) return;
-          const activeST = ScrollTrigger.getAll().find(
-            (st) => st.trigger === sections[currentIdx]
-          );
-          if (activeST && activeST.progress < 0.99) return;
-          goTo(currentIdx + 1);
-        },
-        onUp: () => {
-          if (isAnimating) return;
-          const activeST = ScrollTrigger.getAll().find(
-            (st) => st.trigger === sections[currentIdx]
-          );
-          if (activeST && activeST.progress > 0.01) return;
-          goTo(currentIdx - 1);
-        },
-        tolerance: 20,
-        preventDefault: false,
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).__snapCleanup = () => {
-        observer.kill();
-        lenis.start();
-      };
-
-      lenis.start();
-    }
-
     const waitForLenis = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis;
       if (lenis) {
-        gsap.ticker.add(tickerUpdate);
+        gsap.ticker.add(tickerFn);
         gsap.ticker.lagSmoothing(0);
-        initSnapping(lenis);
+        // Tell Lenis to defer to GSAP ticker
+        lenis.options.autoRaf = false;
       } else {
         rafId = requestAnimationFrame(waitForLenis);
       }
     };
-
     waitForLenis();
 
+    // ── Scroll Guard ────────────────────────────────────────────────
+    // Intercept wheel/touch. If a pinned ScrollTrigger is mid-scrub
+    // (progress between 0 and 1), consume the event so the user stays
+    // in that section until the animation fully resolves.
+    let touchStartY = 0;
+
+    const getActivePinnedST = (): ScrollTrigger | undefined => {
+      return ScrollTrigger.getAll().find((st) => {
+        if (!st.pin) return false;
+        const prog = st.progress;
+        // "mid-animation" = past entry threshold but not yet complete
+        return prog > 0.005 && prog < 0.995;
+      });
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const active = getActivePinnedST();
+      if (active) {
+        // A pinned ST is in progress — let native scroll drive the scrub
+        // but prevent Lenis from warping past it.
+        // Just prevent any extra momentum by stopping propagation.
+        e.stopPropagation();
+        return;
+      }
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const active = getActivePinnedST();
+      if (active) {
+        const dy = touchStartY - e.touches[0].clientY;
+        const goingDown = dy > 0;
+        // Block touch scroll past a pinned section that isn't done
+        if (goingDown && active.progress < 0.99) {
+          e.preventDefault();
+        } else if (!goingDown && active.progress > 0.01) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('wheel', onWheel, { passive: true });
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+
     return () => {
-      gsap.ticker.remove(tickerUpdate);
+      gsap.ticker.remove(tickerFn);
       if (rafId !== undefined) cancelAnimationFrame(rafId);
+      document.removeEventListener('wheel', onWheel);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
       ScrollTrigger.getAll().forEach((t) => t.kill());
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cleanup = (window as any).__snapCleanup;
-      if (typeof cleanup === 'function') cleanup();
     };
   }, []);
 
   return (
-    <div ref={mainRef} className="bg-white">
+    <div className="bg-white">
       <Navbar />
       <SectionHero />
       <SectionMorphText />

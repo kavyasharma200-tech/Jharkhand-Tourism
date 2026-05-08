@@ -33,8 +33,9 @@ export default function SectionBrutalistGrid() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 60%',
-          end: 'bottom 55%',
+          start: 'top top',
+          end: '+=120%',
+          pin: true,
           scrub: 1.6,
         },
       });

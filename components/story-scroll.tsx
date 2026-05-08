@@ -5,6 +5,8 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 
+gsap.registerPlugin(ScrollTrigger);
+
 function cx(...parts: Array<string | undefined | false | null>): string {
   return parts.filter(Boolean).join(' ');
 }
@@ -22,7 +24,7 @@ export const FlowSection: React.FC<FlowSectionProps> = ({
   children,
   'aria-label': ariaLabel,
 }) => (
-  <div
+  <section
     data-flow-section
     aria-label={ariaLabel}
     className={cx('relative min-h-screen w-full overflow-hidden', className)}
@@ -37,7 +39,7 @@ export const FlowSection: React.FC<FlowSectionProps> = ({
     >
       {children}
     </div>
-  </div>
+  </section>
 );
 
 export interface FlowArtProps {
@@ -66,7 +68,6 @@ const FlowArt: React.FC<FlowArtProps> = ({
 
   useGSAP(
     () => {
-      gsap.registerPlugin(ScrollTrigger);
       if (!containerRef.current || reducedMotion) return;
 
       const sections = Array.from(
@@ -105,11 +106,6 @@ const FlowArt: React.FC<FlowArtProps> = ({
               end: 'bottom top',
               pin: true,
               pinSpacing: false,
-              snap: {
-                snapTo: 1,
-                duration: 0.8,
-                ease: "power3.inOut"
-              }
             }),
           );
         }

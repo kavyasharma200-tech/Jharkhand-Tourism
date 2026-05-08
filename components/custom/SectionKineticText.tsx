@@ -25,8 +25,9 @@ export default function SectionKineticText() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 55%',
-          end: 'top -10%',
+          start: 'top top',
+          end: '+=130%',
+          pin: true,
           scrub: 1.6,
         },
       });
