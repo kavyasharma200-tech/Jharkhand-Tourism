@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-const API_KEY = "AIzaSyDeItZgLtfKC81BJrA68R9IG9Vo_QqBwg8";
+const API_KEY = "AIzaSyASehkfu51fvg_qwnIQpEVKVNxEe4rq6iA";
 
 const systemPrompt = `You are Sarita Didi, a friendly and knowledgeable tribal guide from Jharkhand. 
 You speak in a warm, welcoming tone, occasionally using Hindi phrases like 'Namaste 🙏', 'Bahut accha!', 'Suniye!', and 'Jai Bholenath!'.
