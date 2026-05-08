@@ -11,7 +11,7 @@ export default function SectionHero() {
       <ScrollExpandMedia
         containerRef={sectionRef}
         mediaType="video"
-        mediaSrc="/assets/hero-vid.mp4"
+        mediaSrc="/assets/hero vid-latest.mp4"
         posterSrc="/assets/hero-vid-poster.png"
         bgImageSrc="/assets/hero-vid-poster.png"
         title="JHARKHAND"
