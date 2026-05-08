@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-gsap.registerPlugin(ScrollTrigger)
 
 const stats = [
   { number: "28", label: "DISTRICTS" },
@@ -19,6 +18,7 @@ export default function SectionStats() {
   const numbersRef = useRef<(HTMLSpanElement | null)[]>([])
 
   useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger)
     const ctx = gsap.context(() => {
       numbersRef.current.forEach((numEl, i) => {
         if (!numEl) return

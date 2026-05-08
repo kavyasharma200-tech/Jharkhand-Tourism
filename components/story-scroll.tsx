@@ -5,8 +5,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(ScrollTrigger);
-
 function cx(...parts: Array<string | undefined | false | null>): string {
   return parts.filter(Boolean).join(' ');
 }
@@ -68,6 +66,7 @@ const FlowArt: React.FC<FlowArtProps> = ({
 
   useGSAP(
     () => {
+      gsap.registerPlugin(ScrollTrigger);
       if (!containerRef.current || reducedMotion) return;
 
       const sections = Array.from(

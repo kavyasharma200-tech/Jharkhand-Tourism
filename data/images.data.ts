@@ -7,16 +7,16 @@ export const JHARKHAND_IMAGES = [
   "/assets/Netarhat/Betla National Park.webp",
   "/assets/Jamshedpur/Dimna Lake.jpg",
   "/assets/Jamshedpur/Jubilee Park.jpg",
-  "/assets/Paras Nath/Paras Nath Temple.jpg",
-  "/assets/Rajrappa/Rajrappa.jpg",
-  "/assets/Ghatshila and East Singhbhum/Ghatshila.jpg",
+  "/assets/Paras Nath/Parasnath-Temple-900x500.jpg",
+  "/assets/Rajrappa/rajrappa-mandir-ramgarh-jharkhand.avif",
+  "/assets/Ghatshila and East Singhbhum/Ghatshila Rajabari.jpg",
   "/assets/Ranchi/Dassam_falls_.jpg",
 ];
 
 export const CITY_IMAGES = [
   { id: 1, src: "/assets/Ranchi/tagore-hill.jpg", alt: "RANCHI — THE CITY OF WATERFALLS" },
-  { id: 2, src: "/assets/Jamshedpur/jubilee-park.jpg", alt: "JAMSHEDPUR — THE STEEL CITY" },
-  { id: 3, src: "/assets/Netarhat/Netarhat.jpg", alt: "NETARHAT — QUEEN OF CHOTANAGPUR" },
+  { id: 2, src: "/assets/Jamshedpur/Jubilee Park.jpg", alt: "JAMSHEDPUR — THE STEEL CITY" },
+  { id: 3, src: "/assets/Netarhat/Netarhat.avif", alt: "NETARHAT — QUEEN OF CHOTANAGPUR" },
   { id: 4, src: "/assets/Deoghar/naulakha-mandir-deoghar-jharkhand-1-attr-hero.jpg", alt: "DEOGHAR — THE ABODE OF GODS" },
-  { id: 5, src: "/assets/Paras Nath/Trikut hills.jpg", alt: "SHIKHARJI — SACRED PEAK" },
+  { id: 5, src: "/assets/Deoghar/Trikut hills.jpg", alt: "SHIKHARJI — SACRED PEAK" },
 ];

@@ -24,14 +24,12 @@ const GridVariantContext = createContext<variants | undefined>(undefined);
 //Motion Variants
 const rowVariants = {
   initial: { opacity: 0 },
-  animate: () => ({
+  animate: {
     opacity: 1,
     transition: {
-      delay: Math.random() * 0.5 + 0.5,
       duration: 1,
-      ease: "easeOut",
     },
-  }),
+  },
 };
 
 export const DraggableContainer = ({
