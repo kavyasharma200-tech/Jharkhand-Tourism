@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '@/components/custom/Navbar';
@@ -10,119 +10,82 @@ import SectionImageReveal from '@/components/custom/SectionImageReveal';
 import SectionAnimatedSlideshow from '@/components/custom/SectionAnimatedSlideshow';
 import SectionZoomParallax from '@/components/custom/SectionZoomParallax';
 import SectionStoryScroll from '@/components/custom/SectionStoryScroll';
-import SectionStats from '@/components/custom/SectionStats';
 import SectionBrutalistGrid from '@/components/custom/SectionBrutalistGrid';
-import SectionKineticText from '@/components/custom/SectionKineticText';
 import SectionStaggeredReveal from '@/components/custom/SectionStaggeredReveal';
 import Section3DModels from '@/components/custom/Section3DModels';
 import SectionTripPlanner from '@/components/custom/SectionTripPlanner';
 import TribalGuideCharacter from '@/components/custom/TribalGuideCharacter';
+import SectionStats from '@/components/custom/SectionStats';
 import Footer from '@/components/custom/Footer';
 
 export default function HomePage() {
-  const mainRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
     let rafId: number | undefined;
-
-    const tickerUpdate = (time: number) => {
+    const tickerFn = (time: number) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis;
       if (lenis) lenis.raf(time * 1000);
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function initSnapping(lenis: any) {
-      const sections = gsap.utils.toArray<HTMLElement>('section');
-      if (!sections.length) return;
-
-      ScrollTrigger.normalizeScroll(true);
-      let currentIdx = 0;
-      let isAnimating = false;
-
-      const goTo = (index: number) => {
-        if (isAnimating || index < 0 || index >= sections.length) return;
-        isAnimating = true;
-        currentIdx = index;
-        lenis.scrollTo(sections[index], {
-          duration: 1.2,
-          easing: (t: number) => 1 - Math.pow(1 - t, 4),
-          onComplete: () => {
-            isAnimating = false;
-            ScrollTrigger.refresh();
-          },
-        });
-      };
-
-      const observer = ScrollTrigger.observe({
-        type: 'wheel,touch,pointer',
-        wheelSpeed: 1,
-        onDown: () => {
-          if (isAnimating) return;
-          const activeST = ScrollTrigger.getAll().find(
-            (st) => st.trigger === sections[currentIdx]
-          );
-          if (activeST && activeST.progress < 0.99) return;
-          goTo(currentIdx + 1);
-        },
-        onUp: () => {
-          if (isAnimating) return;
-          const activeST = ScrollTrigger.getAll().find(
-            (st) => st.trigger === sections[currentIdx]
-          );
-          if (activeST && activeST.progress > 0.01) return;
-          goTo(currentIdx - 1);
-        },
-        tolerance: 20,
-        preventDefault: false,
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).__snapCleanup = () => {
-        observer.kill();
-        lenis.start();
-      };
-
-      lenis.start();
-    }
-
     const waitForLenis = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis;
       if (lenis) {
-        gsap.ticker.add(tickerUpdate);
+        gsap.ticker.add(tickerFn);
         gsap.ticker.lagSmoothing(0);
-        initSnapping(lenis);
+        lenis.options.autoRaf = false;
       } else {
         rafId = requestAnimationFrame(waitForLenis);
       }
     };
-
     waitForLenis();
 
+    let touchStartY = 0;
+    const getActivePinnedST = (): ScrollTrigger | undefined =>
+      ScrollTrigger.getAll().find((st) => {
+        if (!st.pin) return false;
+        const p = st.progress;
+        return p > 0.005 && p < 0.995;
+      });
+
+    const onWheel = (e: WheelEvent) => {
+      if (getActivePinnedST()) e.stopPropagation();
+    };
+    const onTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
+    const onTouchMove = (e: TouchEvent) => {
+      const active = getActivePinnedST();
+      if (!active) return;
+      const goingDown = touchStartY - e.touches[0].clientY > 0;
+      if (goingDown && active.progress < 0.99) e.preventDefault();
+      else if (!goingDown && active.progress > 0.01) e.preventDefault();
+    };
+
+    document.addEventListener('wheel', onWheel, { passive: true });
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+
     return () => {
-      gsap.ticker.remove(tickerUpdate);
+      gsap.ticker.remove(tickerFn);
       if (rafId !== undefined) cancelAnimationFrame(rafId);
+      document.removeEventListener('wheel', onWheel);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
       ScrollTrigger.getAll().forEach((t) => t.kill());
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cleanup = (window as any).__snapCleanup;
-      if (typeof cleanup === 'function') cleanup();
     };
   }, []);
 
   return (
-    <div ref={mainRef} className="bg-white">
+    <div className="bg-white">
       <Navbar />
-      <SectionHero />
+      <div id="hero"><SectionHero /></div>
       <SectionMorphText />
-      <SectionImageReveal />
-      <SectionAnimatedSlideshow />
-      <SectionZoomParallax />
-      <SectionStoryScroll />
-      <SectionBrutalistGrid />
-      <SectionKineticText />
+      <div id="cities"><SectionImageReveal /></div>
+      <div id="wonders"><SectionAnimatedSlideshow /></div>
+      <div id="landscapes"><SectionZoomParallax /></div>
+      <div id="culture"><SectionStoryScroll /></div>
+      <div id="wild"><SectionBrutalistGrid /></div>
       <SectionStaggeredReveal />
       <SectionStats />
       <Section3DModels />

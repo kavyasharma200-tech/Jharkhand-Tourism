@@ -1,35 +1,14 @@
 'use client';
 
-import { MoveUpRight } from 'lucide-react';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { CITY_IMAGES as images } from '@/data/images.data';
 
 interface ImageData {
   id: number;
   src: string;
   alt: string;
 }
-
-import { CITY_IMAGES as images } from '@/data/images.data';
-
-// Inlined useMediaQuery hook to resolve import issue
-const useMediaQuery = (query: string) => {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mediaQueryList = window.matchMedia(query);
-      const listener = (event: MediaQueryListEvent) => {
-        setMatches(event.matches);
-      };
-      setMatches(mediaQueryList.matches);
-      mediaQueryList.addEventListener('change', listener);
-      return () => mediaQueryList.removeEventListener('change', listener);
-    }
-  }, [query]);
-
-  return matches;
-};
 
 export interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'blue-theme' | 'green-theme';
@@ -39,161 +18,113 @@ export interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Component = React.forwardRef<HTMLDivElement, ComponentProps>(
   ({ variant = 'default', size = 'default', asChild, className, children, ...props }, ref) => {
-    const isDesktop = useMediaQuery('(min-width: 768px)');
     const [activeImage, setActiveImage] = useState<ImageData | null>(null);
-    const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-    const [opacity, setOpacity] = useState(0);
-    const [scale, setScale] = useState(0.5);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const requestRef = useRef<number | null>(null);
-    const prevCursorPosition = useRef({ x: 0, y: 0 });
+    const [pos, setPos] = useState({ x: 0, y: 0 });
+    const containerRef = useRef<HTMLDivElement>(null);
+    const rafRef = useRef<number | null>(null);
 
     const handleMouseMove = useCallback((e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const dx = clientX - prevCursorPosition.current.x;
-      const dy = clientY - prevCursorPosition.current.y;
-
-      const easeAmount = 0.2;
-      const newX = prevCursorPosition.current.x + dx * easeAmount;
-      const newY = prevCursorPosition.current.y + dy * easeAmount;
-
-      setCursorPosition({ x: newX, y: newY });
-      prevCursorPosition.current = { x: newX, y: newY };
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) {
+          setPos({
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+          });
+        }
+        rafRef.current = null;
+      });
     }, []);
 
     useEffect(() => {
-      const updateCursorPosition = (e: MouseEvent) => {
-        if (requestRef.current) return;
-        requestRef.current = requestAnimationFrame(() => {
-          handleMouseMove(e);
-          requestRef.current = null;
-        });
-      };
-
-      window.addEventListener('mousemove', updateCursorPosition);
+      const el = containerRef.current;
+      if (!el) return;
+      el.addEventListener('mousemove', handleMouseMove);
       return () => {
-        window.removeEventListener('mousemove', updateCursorPosition);
-        if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        el.removeEventListener('mousemove', handleMouseMove);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
       };
     }, [handleMouseMove]);
 
-    const handleImageHover = useCallback(
-      (image: ImageData) => {
-        if (activeImage !== image) {
-          setActiveImage(image);
-          if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          timeoutRef.current = setTimeout(() => {
-            setOpacity(1);
-            setScale(1);
-          }, 50);
-        } else {
-          setOpacity(1);
-          setScale(1);
-        }
-      },
-      [activeImage]
-    );
-
-    const handleMouseLeave = useCallback(() => {
-      setOpacity(0);
-      setScale(0.5);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        setActiveImage(null);
-      }, 300);
-    }, []);
-
-    const variantClasses = {
-      default: 'bg-white border-black/10',
-      'blue-theme': 'dark:bg-gradient-to-b from-blue-900 from-10% to-blue-950 to-100% bg-blue-100',
-      'green-theme': 'dark:bg-gradient-to-b from-green-900 from-10% to-green-950 to-100% bg-green-100',
+    const sizeClasses: Record<string, string> = {
+      default: 'text-xl sm:text-2xl md:text-5xl',
+      compact: 'text-lg sm:text-xl md:text-4xl',
+      expanded: 'text-2xl sm:text-3xl md:text-6xl',
     };
-
-    const sizeClasses = {
-      default: 'p-4 text-xl sm:text-2xl md:text-5xl',
-      compact: 'p-2 text-lg sm:text-xl md:text-4xl',
-      expanded: 'p-6 text-2xl sm:text-3xl md:text-6xl',
-    };
-
-    const h2SizeClasses = {
-        default: 'text-xl sm:text-2xl md:text-5xl',
-        compact: 'text-lg sm:text-xl md:text-4xl',
-        expanded: 'text-2xl sm:text-3xl md:text-6xl',
-    };
-
-    const commonClasses = cn(
-      'relative w-full min-h-fit rounded-md border',
-      variantClasses[variant],
-      className
-    );
-
-    if (asChild) {
-      return React.isValidElement(children)
-        ? React.cloneElement(children as React.ReactElement<any>, {
-            ref: ref as any,
-            className: cn((children.props as any).className, commonClasses),
-            ...props,
-          })
-        : <div ref={ref} className={commonClasses} {...props}>{children}</div>;
-    }
 
     return (
       <div
-        ref={ref}
-        className={commonClasses}
-        onMouseLeave={handleMouseLeave}
+        ref={(node) => {
+          containerRef.current = node!;
+          if (typeof ref === 'function') ref(node);
+          else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        }}
+        className={cn('relative w-full overflow-hidden', className)}
+        onMouseLeave={() => setActiveImage(null)}
         {...props}
       >
+        {/* Hover image — absolute relative to this container */}
+        {activeImage && (
+          <div
+            className="absolute z-10 pointer-events-none overflow-hidden w-[320px] h-[220px] md:w-[420px] md:h-[290px] shadow-2xl"
+            style={{
+              left: pos.x,
+              top: pos.y,
+              transform: 'translate(-50%, -50%)',
+              transition: 'opacity 0.2s ease',
+            }}
+          >
+            <img
+              src={activeImage.src}
+              alt={activeImage.alt}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        {/* City rows */}
         {images.map((image) => (
           <div
             key={image.id}
-            className={cn(`cursor-pointer relative sm:flex items-center justify-between`, sizeClasses[size])}
-            onMouseEnter={() => handleImageHover(image)}
+            className="relative flex items-center justify-between border-b border-black/8 py-4 md:py-6 group cursor-pointer"
+            onMouseEnter={() => setActiveImage(image)}
           >
-            {!isDesktop && (
-              <img
-                src={image.src}
-                className='sm:w-32 sm:h-20 w-full h-52 object-cover rounded-md'
-                alt='mobileImg'
-              />
-            )}
             <h2
               className={cn(
-                `font-['Anton'] uppercase sm:py-6 py-2 leading-[100%] relative transition-colors duration-300`,
-                h2SizeClasses[size],
+                "font-['Anton'] uppercase leading-none transition-all duration-300 relative z-20",
+                sizeClasses[size],
                 activeImage?.id === image.id
-                  ? 'mix-blend-difference z-20 text-white'
-                  : 'text-black/80'
+                  ? 'text-black scale-[1.01] translate-x-2'
+                  : 'text-black/50'
               )}
             >
               {image.alt}
             </h2>
-            {/* Simplified - removed action button */}
+
+            {/* Right arrow indicator */}
+            <span
+              className={cn(
+                'font-mono text-[9px] tracking-[0.4em] uppercase transition-all duration-300 relative z-20',
+                activeImage?.id === image.id ? 'text-black opacity-100 translate-x-0' : 'text-black/20 -translate-x-2 opacity-0'
+              )}
+            >
+              EXPLORE →
+            </span>
+
+            {/* Underline expand */}
             <div
-              className={`h-[2px] bg-white absolute bottom-0 left-0 transition-all duration-300 ease-linear ${
+              className={cn(
+                'absolute bottom-0 left-0 h-px bg-black transition-all duration-300',
                 activeImage?.id === image.id ? 'w-full' : 'w-0'
-              }`}
+              )}
             />
           </div>
         ))}
-        {isDesktop && activeImage && (
-          <img
-            src={activeImage.src}
-            alt={activeImage.alt}
-            className={`fixed bg-white object-cover pointer-events-none z-10 w-[400px] h-[300px] rounded-none contrast-110 shadow-2xl`}
-            style={{
-              left: `${cursorPosition.x}px`,
-              top: `${cursorPosition.y}px`,
-              transform: `translate(-50%, -50%) scale(${scale})`,
-              opacity: opacity,
-            }}
-          />
-        )}
       </div>
     );
   }
 );
 
 Component.displayName = 'Component';
-
 export default Component;

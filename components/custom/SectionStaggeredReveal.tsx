@@ -33,8 +33,9 @@ export default function SectionStaggeredReveal() {
       const entranceTL = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 65%',
-          end: 'top 10%',
+          start: 'top top',
+          end: '+=150%',
+          pin: true,
           scrub: 1.5,
         },
       });
@@ -68,23 +69,25 @@ export default function SectionStaggeredReveal() {
       ref={sectionRef}
       className="relative w-full bg-neutral-950 overflow-hidden py-32 px-8 md:px-24 border-t border-white/5"
     >
-      {/* Ambient ghost word */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 overflow-hidden">
-        <span className="font-['Playfair_Display'] text-[22vw] text-white/[0.02] italic font-black uppercase whitespace-nowrap">
+        <span className="font-['var(--font-bodoni)'] text-[22vw] text-white/[0.02] italic font-black uppercase whitespace-nowrap">
           ARCHIVE
         </span>
       </div>
 
       {/* Section heading */}
       <div className="overflow-hidden mb-20">
-        <div data-sr-heading className="flex justify-between items-end">
+        <div data-sr-heading className="flex justify-between items-end relative z-10">
           <div>
-            <p className="font-['Space_Mono'] text-[8px] text-white/25 tracking-[0.6em] uppercase mb-3">COLLECTION</p>
-            <h2 className="font-['Anton'] text-[11vw] md:text-[5.5vw] text-white leading-none uppercase tracking-tight">
-              THE COLLECTION
+            <p className="font-['var(--font-space-mono)'] text-[8px] text-white/25 tracking-[0.6em] uppercase mb-3">COLLECTION</p>
+            <h2 className="leading-[0.85] tracking-tight flex items-baseline flex-wrap uppercase">
+              <span className="font-['Anton'] text-[11vw] md:text-[5.5vw] text-white tracking-[-0.02em]">THE</span>
+              <span className="font-['var(--font-bodoni)'] italic text-[8vw] md:text-[4.5vw] text-white font-light ml-4">
+                Collection
+              </span>
             </h2>
           </div>
-          <p className="hidden md:block font-['DM_Serif_Display'] text-base text-white/20 italic max-w-[240px] text-right">
+          <p className="hidden md:block font-['var(--font-instrument)'] font-serif text-base text-white/30 italic max-w-[240px] text-right">
             Places that stay with you long after you leave
           </p>
         </div>
@@ -107,7 +110,7 @@ export default function SectionStaggeredReveal() {
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000"
               />
               <div className="absolute inset-0 border border-white/[0.06] group-hover:border-white/20 transition-colors duration-500" />
-              <div className="absolute top-4 left-4 font-['Space_Mono'] text-[7px] text-white/30 uppercase tracking-[0.4em]">
+              <div className="absolute top-4 left-4 font-['var(--font-space-mono)'] text-[7px] text-white/30 uppercase tracking-[0.4em]">
                 {card.tag}
               </div>
             </div>
@@ -117,9 +120,9 @@ export default function SectionStaggeredReveal() {
                 <h3 className="font-['Anton'] text-3xl md:text-4xl text-white tracking-tight uppercase">
                   {card.title}
                 </h3>
-                <p className="font-['DM_Serif_Display'] text-sm text-white/30 mt-1 italic">{card.sub}</p>
+                <p className="font-['var(--font-instrument)'] font-serif text-sm text-white/30 mt-1 italic">{card.sub}</p>
               </div>
-              <span className="font-['Space_Mono'] text-[10px] text-white/15">
+              <span className="font-['var(--font-space-mono)'] text-[10px] text-white/15">
                 {String(i + 1).padStart(2, '0')}
               </span>
             </div>

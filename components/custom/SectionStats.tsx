@@ -34,8 +34,9 @@ export default function SectionStats() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 65%',
-          end: 'top 20%',
+          start: 'top top',
+          end: '+=120%',
+          pin: true,
           scrub: 1.4,
         },
       });
@@ -82,8 +83,11 @@ export default function SectionStats() {
       {/* Heading */}
       <div data-stats-heading className="mb-20">
         <p className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.5em] uppercase mb-4">BY THE NUMBERS</p>
-        <h2 className="font-['Anton'] text-[13vw] md:text-[8vw] leading-none text-black tracking-tight uppercase">
-          Statistics
+        <h2 className="leading-[0.85] tracking-tight flex items-baseline flex-wrap uppercase">
+          <span className="font-['Anton'] text-[13vw] md:text-[8vw] text-black">STA</span>
+          <span className="font-['var(--font-bodoni)'] italic text-[11vw] md:text-[6vw] text-black font-light ml-2">
+            tistics
+          </span>
         </h2>
       </div>
 

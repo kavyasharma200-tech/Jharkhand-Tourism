@@ -31,9 +31,9 @@ export const JHARKHAND_IMAGES = [
 ];
 
 export const CITY_IMAGES = [
-  { id: 1, src: "/assets/Ranchi/tagore-hill.jpg", alt: "RANCHI — THE CITY OF WATERFALLS" },
-  { id: 2, src: "/assets/Jamshedpur/jubilee-park.jpg", alt: "JAMSHEDPUR — THE STEEL CITY" },
-  { id: 3, src: "/assets/Netarhat/Netarhat.jpg", alt: "NETARHAT — QUEEN OF CHOTANAGPUR" },
-  { id: 4, src: "/assets/Deoghar/Trikut hills.jpg", alt: "DEOGHAR — THE ABODE OF GODS" },
-  { id: 5, src: "/assets/Ghatshila and East Singhbhum/Burudi Lake.jpg", alt: "GHATSHILA — RIVER & ROCK" },
+  { id: 1, src: "/assets/Ranchi/Tagore hill.jpg",                                        alt: "RANCHI — THE CITY OF WATERFALLS" },
+  { id: 2, src: "/assets/Jamshedpur/Jubilee Park.jpg",                                   alt: "JAMSHEDPUR — THE STEEL CITY" },
+  { id: 3, src: "/assets/Netarhat/Netarhat.avif",                                        alt: "NETARHAT — QUEEN OF CHOTANAGPUR" },
+  { id: 4, src: "/assets/Deoghar/Trikut hills.jpg",                                      alt: "DEOGHAR — THE ABODE OF GODS" },
+  { id: 5, src: "/assets/Ghatshila and East Singhbhum/Burudi Lake.jpg",                  alt: "GHATSHILA — RIVER & ROCK" },
 ];
