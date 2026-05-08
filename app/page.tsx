@@ -28,6 +28,19 @@ export default function InfiniteEntry() {
         </p>
       </div>
 
+      {/* Centered Hollow Text */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none select-none">
+        <h2 
+          className="font-['Anton'] text-[20vw] leading-none tracking-tighter opacity-10"
+          style={{
+            WebkitTextStroke: '1px black',
+            color: 'transparent'
+          }}
+        >
+          JHARKHAND
+        </h2>
+      </div>
+
       <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30">
         <button 
           onClick={() => router.push('/home')}

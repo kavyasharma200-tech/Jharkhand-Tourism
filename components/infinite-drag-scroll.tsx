@@ -23,14 +23,13 @@ const GridVariantContext = createContext<variants | undefined>(undefined);
 
 //Motion Variants
 const rowVariants = {
-  initial: { opacity: 0, scale: 0.3 },
+  initial: { opacity: 0 },
   animate: () => ({
     opacity: 1,
-    scale: 1,
     transition: {
-      delay: Math.random() + 1.5,
-      duration: 1.4,
-      ease: cubicBezier(0.18, 0.71, 0.11, 1),
+      delay: Math.random() * 0.5 + 0.5,
+      duration: 1,
+      ease: "easeOut",
     },
   }),
 };
@@ -54,45 +53,20 @@ export const DraggableContainer = ({
   const handleIsNotDragging = () => setIsDragging(false);
 
   useEffect(() => {
-    const container = ref.current?.getBoundingClientRect();
-    if (!container) return;
-
-    const { width, height } = container;
-
-    const xDrag = x.on("change", (latest) => {
-      // Need custom wrap implementation since framer-motion might not export it directly in all versions
-      const min = -(width / 2);
-      const max = 0;
-      const range = max - min;
-      const wrappedX = ((((latest - min) % range) + range) % range) + min;
-      x.set(wrappedX);
-    });
-
-    const yDrag = y.on("change", (latest) => {
-      const min = -(height / 2);
-      const max = 0;
-      const range = max - min;
-      const wrappedY = ((((latest - min) % range) + range) % range) + min;
-      y.set(wrappedY);
-    });
-
     const handleWheelScroll = (event: WheelEvent) => {
-      if (!isDragging) {
-        animate(y, y.get() - event.deltaY * 2.7, {
-          type: "tween",
-          duration: 1.2,
-          ease: cubicBezier(0.18, 0.71, 0.11, 1),
-        });
-      }
+      // Use a direct check instead of depending on state to prevent useEffect re-runs
+      animate(y, y.get() - event.deltaY * 2.7, {
+        type: "tween",
+        duration: 1.2,
+        ease: cubicBezier(0.18, 0.71, 0.11, 1),
+      });
     };
 
     window.addEventListener("wheel", handleWheelScroll);
     return () => {
-      xDrag();
-      yDrag();
       window.removeEventListener("wheel", handleWheelScroll);
     };
-  }, [x, y, isDragging]);
+  }, [y]);
 
   return (
     <GridVariantContext.Provider value={variant}>
@@ -107,6 +81,7 @@ export const DraggableContainer = ({
             )}
             drag
             dragMomentum={true}
+            dragElastic={0}
             dragTransition={{
               timeConstant: 300,
               power: 0.3,

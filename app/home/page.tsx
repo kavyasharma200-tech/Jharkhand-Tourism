@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Navbar from '@/components/custom/Navbar'
 import SectionHero from '@/components/custom/SectionHero'
 import SectionMorphText from '@/components/custom/SectionMorphText'
@@ -12,18 +13,26 @@ import SectionStoryScroll from '@/components/custom/SectionStoryScroll'
 import SectionStats from '@/components/custom/SectionStats'
 import Footer from '@/components/custom/Footer'
 
+gsap.registerPlugin(ScrollTrigger)
+
 export default function HomePage() {
   useEffect(() => {
     // Wait for Lenis to be initialized globally by LenisProvider
+    let rafId: number;
+    const tickerUpdate = (time: number) => {
+      const lenis = (window as any).__lenis
+      if (lenis) {
+        lenis.raf(time * 1000)
+      }
+    }
+
     const initGSAPLenis = () => {
       const lenis = (window as any).__lenis
       if (lenis) {
-        gsap.ticker.add((time) => {
-          lenis.raf(time * 1000)
-        })
+        gsap.ticker.add(tickerUpdate)
         gsap.ticker.lagSmoothing(0)
       } else {
-        requestAnimationFrame(initGSAPLenis)
+        rafId = requestAnimationFrame(initGSAPLenis)
       }
     }
     
@@ -37,7 +46,7 @@ export default function HomePage() {
         start: "top top",
         end: "bottom bottom",
         snap: {
-          snapTo: 1 / 7, // 7 sections + 1 footer = 8 points
+          snapTo: 1 / 7,
           duration: { min: 0.3, max: 0.7 },
           delay: 0.1,
           ease: "power2.inOut"
@@ -46,11 +55,9 @@ export default function HomePage() {
     }
 
     return () => {
-      gsap.ticker.remove((time) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const lenis = (window as any).__lenis
-        if (lenis) lenis.raf(time * 1000)
-      })
+      gsap.ticker.remove(tickerUpdate)
+      if (rafId) cancelAnimationFrame(rafId)
+      ScrollTrigger.getAll().forEach(t => t.kill())
     }
   }, [])
 

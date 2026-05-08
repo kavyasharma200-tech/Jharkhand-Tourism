@@ -26,7 +26,6 @@ export default function RootLayout({
       <body className="bg-white text-black overflow-x-hidden">
         <LenisProvider>
           <GrainOverlay />
-          <CustomCursor />
           {children}
         </LenisProvider>
       </body>
