@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Tourist Guide & 360° Models</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* Base Styles */
+        :root {
+            --navy: #0a0a2e;
+            --gold: #f0a500;
+            --white: #ffffff;
+            --skin: #8B5E3C;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--navy);
+            color: var(--white);
+            min-height: 100vh;
+            background-image: radial-gradient(var(--white) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-attachment: fixed;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(10,10,46,0.95) 0%, rgba(10,10,46,0.85) 100%);
+            z-index: -1;
+        }
+
+        header { text-align: center; padding: 4rem 1rem 2rem; }
+        h1 { font-size: 3rem; color: var(--gold); text-shadow: 0 2px 10px rgba(240, 165, 0, 0.3); margin-bottom: 0.5rem; }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin: 4rem 0 2rem;
+            position: relative;
+            padding-bottom: 20px;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 10px;
+            /* Tribal pattern */
+            background: repeating-linear-gradient(45deg, var(--gold), var(--gold) 10px, transparent 10px, transparent 20px);
+        }
+
+        /* --- 3D Model Cards --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            padding: 0 4rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        @media (max-width: 1024px) { .grid-container { grid-template-columns: repeat(2, 1fr); padding: 2rem; } }
+        @media (max-width: 600px) { .grid-container { grid-template-columns: 1fr; padding: 1rem; } }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 20px rgba(240, 165, 0, 0.2);
+            border-color: rgba(240, 165, 0, 0.4);
+        }
+        .card-thumbnail { height: 200px; position: relative; overflow: hidden; }
+        .card-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: #fff; }
+        .card-location { font-size: 0.85rem; color: var(--gold); margin-bottom: 1rem; }
+        .card-desc { font-size: 0.95rem; color: #ccc; margin-bottom: 1.5rem; flex-grow: 1; }
+        .explore-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: 0.3s; width: 100%; font-weight: 500; }
+        .card:hover .explore-btn { background: var(--gold); color: var(--navy); box-shadow: 0 0 15px rgba(240,165,0,0.5); }
+
+        /* --- Fullscreen Modal --- */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 46, 0.98); z-index: 2000;
+            display: none; flex-direction: column; opacity: 0;
+        }
+        .modal.active { display: flex; opacity: 1; }
+        .modal-content-wrapper { position: relative; flex-grow: 1; }
+        .iframe-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .iframe-container iframe { width: 100%; height: 100%; border: none; }
+        .bottom-bar {
+            height: 70px; background: rgba(10, 10, 46, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; z-index: 20;
+        }
+        .close-btn { background: transparent; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+
+        .hotspot-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        .hotspot-pin {
+            position: absolute; width: 20px; height: 20px; background: #fff; border-radius: 50%;
+            transform: translate(-50%, -50%); cursor: pointer; pointer-events: auto;
+        }
+        .hotspot-pin::before, .hotspot-pin::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            border-radius: 50%; border: 2px solid var(--gold); animation: pulse 2s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        .hotspot-pin::before { width: 30px; height: 30px; }
+        .hotspot-pin::after { width: 45px; height: 45px; animation-delay: 0.5s; }
+        @keyframes pulse { 0% { width: 20px; height: 20px; opacity: 1; } 100% { width: 60px; height: 60px; opacity: 0; } }
+        
+        .tooltip {
+            position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem; border-radius: 12px; width: max-content; max-width: 250px; color: #fff;
+            display: none; opacity: 0; pointer-events: none; z-index: 20;
+        }
+        .tooltip.active { display: block; opacity: 1; }
+        .tooltip-title { color: var(--gold); font-weight: 600; margin-bottom: 0.25rem; }
+
+        /* --- Tribal Guide Character (Sarita Didi) --- */
+        .guide-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: flex-end;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* The Character Art (CSS) */
+        .sarita {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            transform-origin: bottom center;
+            transition: all 0.3s;
+            animation: breathe 3s infinite ease-in-out;
+        }
+        @keyframes breathe {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.02); }
+        }
+        
+        /* Hover to expand */
+        .guide-container:hover .sarita, .guide-container.active .sarita {
+            width: 150px;
+            height: 200px;
+        }
+
+        .head {
+            position: absolute;
+            top: 20%; left: 50%; transform: translateX(-50%);
+            width: 45%; height: 35%;
+            background-color: var(--skin);
+            border-radius: 50% 50% 40% 40%;
+            z-index: 3;
+            transition: all 0.3s;
+        }
+        .hair {
+            position: absolute;
+            top: -10%; left: -5%;
+            width: 110%; height: 50%;
+            background-color: #111;
+            border-radius: 50% 50% 0 0;
+            z-index: 4;
+        }
+        .bun {
+            position: absolute;
+            top: -20%; right: -10%;
+            width: 40%; height: 40%;
+            background-color: #111;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .flower {
+            position: absolute;
+            top: 10%; right: 10%;
+            width: 40%; height: 40%;
+            background-color: #FFA500; /* Marigold */
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255,165,0,0.8);
+            z-index: 5;
+        }
+        .eye {
+            position: absolute;
+            top: 45%;
+            width: 15%; height: 15%;
+            background-color: #111;
+            border-radius: 50%;
+            z-index: 5;
+            animation: blink 4s infinite;
+        }
+        .eye.left { left: 25%; }
+        .eye.right { right: 25%; }
+        @keyframes blink {
+            0%, 96%, 100% { transform: scaleY(1); }
+            98% { transform: scaleY(0.1); }
+        }
+        .nose-ring {
+            position: absolute;
+            top: 60%; right: 40%;
+            width: 15%; height: 15%;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            z-index: 6;
+        }
+        .mouth {
+            position: absolute;
+            top: 75%; left: 50%; transform: translateX(-50%);
+            width: 30%; height: 5%;
+            background-color: #522;
+            border-radius: 0 0 50% 50%;
+            z-index: 5;
+            transition: height 0.1s;
+        }
+        .talking .mouth { animation: talk 0.3s infinite alternate; }
+        @keyframes talk {
+            0% { height: 5%; }
+            100% { height: 15%; }
+        }
+
+        .body {
+            position: absolute;
+            bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 80%; height: 50%;
+            background-color: #cc0000; /* Red Saree */
+            border-radius: 40% 40% 10% 10%;
+            z-index: 2;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .saree-border {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 20px;
+            background: repeating-linear-gradient(90deg, #fff, #fff 5px, transparent 5px, transparent 10px);
+            transform: rotate(-15deg);
+        }
+        .necklace {
+            position: absolute;
+            top: 10%; left: 50%; transform: translateX(-50%);
+            width: 60%; height: 40%;
+            border-bottom: 4px dotted var(--gold);
+            border-radius: 50%;
+            z-index: 3;
+        }
+        .arm.right {
+            position: absolute;
+            top: 50%; right: -10%;
+            width: 30%; height: 40%;
+            background-color: var(--skin);
+            border-radius: 20px;
+            transform-origin: top center;
+            z-index: 1;
+            transform: rotate(20deg);
+        }
+        .wave { animation: waving 2s ease-in-out; }
+        @keyframes waving {
+            0%, 100% { transform: rotate(20deg); }
+            25%, 75% { transform: rotate(-40deg); }
+            50% { transform: rotate(10deg); }
+        }
+        
+        /* Shake animation when new message */
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        .wiggle { animation: wiggle 0.5s ease-in-out; }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: absolute;
+            bottom: 100%; left: 100%;
+            background: #fff;
+            color: #000;
+            padding: 1.5rem;
+            border-radius: 20px 20px 20px 0;
+            width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            z-index: 1001;
+        }
+        .speech-bubble.visible { opacity: 1; pointer-events: auto; }
+        .speech-bubble::before {
+            content: ''; position: absolute; bottom: -20px; left: 0;
+            border-width: 20px 20px 0 0;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+        }
+        .speech-content { min-height: 80px; }
+        .skip-btn {
+            background: var(--navy); color: #fff; border: none;
+            padding: 4px 8px; font-size: 0.7rem; border-radius: 4px;
+            cursor: pointer; position: absolute; bottom: 10px; right: 10px;
+        }
+
+        /* --- Trip Planner Section --- */
+        .planner-section {
+            padding: 4rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .planner-form {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .planner-row { margin-bottom: 1.5rem; }
+        .planner-row h3 { color: var(--gold); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .toggle-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .toggle-btn.selected {
+            background: var(--gold);
+            color: var(--navy);
+            border-color: var(--gold);
+            font-weight: 600;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            background: var(--gold);
+            color: var(--navy);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            margin-top: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(240,165,0,0.4); }
+
+        /* Itinerary Timeline */
+        .itinerary-container { display: none; }
+        .timeline-day { position: relative; padding-left: 40px; margin-bottom: 2rem; }
+        .timeline-line {
+            position: absolute; top: 0; left: 19px; bottom: -2rem;
+            width: 2px; background: var(--gold);
+        }
+        .day-badge {
+            position: absolute; top: 0; left: 0;
+            width: 40px; height: 40px; background: var(--gold); color: var(--navy);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.8rem; z-index: 2;
+        }
+        .day-content {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 1.5rem; border-radius: 12px;
+            margin-left: 1rem;
+        }
+        .activity { margin-bottom: 1.5rem; }
+        .activity:last-child { margin-bottom: 0; }
+        .act-time { color: var(--gold); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .act-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 10px; }
+        .act-desc { color: #ccc; font-size: 0.9rem; line-height: 1.5; }
+        .act-tip {
+            background: var(--gold); color: var(--navy);
+            padding: 0.75rem; border-radius: 8px; font-size: 0.85rem;
+            margin-top: 0.5rem; display: flex; gap: 8px; font-weight: 500;
+        }
+        
+        .mini-thumb {
+            width: 50px; height: 50px; border-radius: 8px; object-fit: cover;
+            border: 1px solid var(--gold);
+        }
+
+        .budget-info {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem; border-radius: 12px;
+            margin-top: 2rem; border-left: 4px solid var(--gold);
+            font-size: 0.9rem; color: #ccc; line-height: 1.6;
+        }
+        .budget-info h4 { color: var(--gold); margin-bottom: 0.5rem; margin-top: 1rem; }
+        .budget-info h4:first-child { margin-top: 0; }
+
+        .print-btn {
+            background: #fff; color: var(--navy); border: none;
+            padding: 1rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer;
+            margin-top: 2rem; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+
+        /* --- Print CSS --- */
+        @media print {
+            body { background: #fff !important; color: #000 !important; background-image: none !important; }
+            body::before { display: none; }
+            header, .grid-container, .guide-container, .planner-form, .print-btn, .modal { display: none !important; }
+            .section-title { color: #000; }
+            .section-title::after { background: #000; }
+            .day-content, .budget-info { background: #fff; border: 1px solid #ddd; color: #000; page-break-inside: avoid; }
+            .act-desc, .budget-info { color: #333; }
+            .timeline-line { background: #ccc; }
+            .day-badge { background: #000; color: #fff; }
+            .act-time, .act-tip, .planner-section h3 { color: #000; }
+            .act-tip { background: #f5f5f5; border: 1px dashed #666; }
+            .planner-section { padding: 0; margin: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Jharkhand 360°</h1>
+        <p>Immersive Digital Exhibits</p>
+    </header>
+
+    <!-- 3D Models Section -->
+    <div class="grid-container" id="cardGrid"></div>
+
+    <!-- Modal -->
+    <div class="modal" id="viewerModal">
+        <div class="modal-content-wrapper">
+            <div class="iframe-container" id="iframeContainer"></div>
+            <div class="hotspot-layer" id="hotspotLayer"></div>
+        </div>
+        <div class="bottom-bar">
+            <div style="font-size: 1.2rem; font-weight: 600; color: var(--gold);"><span id="modalTitle"></span></div>
+            <button class="close-btn" id="closeBtn">&times;</button>
+        </div>
+    </div>
+
+    <!-- Trip Planner Section -->
+    <section class="planner-section" id="tripPlanner">
+        <h2 class="section-title">🗺️ Plan Your Jharkhand Journey</h2>
+        
+        <div class="planner-form">
+            <div class="planner-row">
+                <h3>How many days?</h3>
+                <div class="btn-group" id="daysGroup">
+                    <button class="toggle-btn" data-val="2">2 Days</button>
+                    <button class="toggle-btn" data-val="3">3 Days</button>
+                    <button class="toggle-btn" data-val="5">5 Days</button>
+                    <button class="toggle-btn" data-val="7">7 Days</button>
+                </div>
+            </div>
+            <div class="planner-row">
+                <h3>Starting City?</h3>
+                <div class="btn-group" id="cityGroup">
+                    <button class="toggle-btn" data-val="Ranchi">Ranchi</button>
+                    <button class="toggle-btn" data-val="Deoghar">Deoghar</button>
+                    <button class="toggle-btn" data-val="Dhanbad">Dhanbad</button>
+                    <button class="toggle-btn" data-val="Jamshedpur">Jamshedpur</button>
+                </div>
+            </div>
+            <div class="planner-row">
+                <h3>Travel Type?</h3>
+                <div class="btn-group" id="typeGroup">
+                    <button class="toggle-btn" data-val="Solo">Solo</button>
+                    <button class="toggle-btn" data-val="Family">Family</button>
+                    <button class="toggle-btn" data-val="Couple">Couple</button>
+                    <button class="toggle-btn" data-val="Group">Group/Friends</button>
+                </div>
+            </div>
+            <button class="generate-btn" id="generateBtn">Generate My Itinerary</button>
+        </div>
+
+        <div class="itinerary-container" id="itineraryContainer">
+            <div id="itineraryContent"></div>
+            
+            <div class="budget-info">
+                <h4>💰 BUDGET ESTIMATE (Per Day)</h4>
+                Budget (₹): Stay ₹800–1500/night, Food ₹200–400<br>
+                Mid-range (₹₹): Stay ₹2000–4000/night, Food ₹600–1000<br>
+                Premium (₹₹₹): Stay ₹6000+/night, Food ₹1500+
+                
+                <h4>🌤️ BEST TIME TO VISIT</h4>
+                Oct–Feb: Best overall (cool, clear, festivals)<br>
+                Jul–Sep: Waterfalls at peak (monsoon magic)<br>
+                Mar–Jun: Hot, avoid midday travel
+                
+                <h4>✈️ HOW TO REACH</h4>
+                Air: Birsa Munda Airport, Ranchi<br>
+                Rail: Ranchi, Dhanbad, Deoghar connected pan-India<br>
+                Road: NH-33, NH-39 well connected
+            </div>
+
+            <button class="print-btn" onclick="window.print()">🖨️ Save / Print My Itinerary</button>
+        </div>
+    </section>
+
+    <!-- Tribal Guide Character (Sarita Didi) -->
+    <div class="guide-container" id="guideContainer">
+        <div class="speech-bubble" id="speechBubble">
+            <div class="speech-content" id="speechText"></div>
+            <button class="skip-btn" id="skipBtn">Skip</button>
+        </div>
+        <div class="sarita" id="saritaChar">
+            <div class="head">
+                <div class="hair"></div>
+                <div class="bun"></div>
+                <div class="flower"></div>
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+                <div class="nose-ring"></div>
+                <div class="mouth"></div>
+            </div>
+            <div class="body">
+                <div class="saree-border"></div>
+                <div class="necklace"></div>
+            </div>
+            <div class="arm right" id="saritaArm"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // --- DATA OBJECTS --- //
+        const attractions = [
+          {
+            id: "baidyanath", title: "Baidyanath Temple", location: "Deoghar",
+            description: "One of the 12 sacred Jyotirlingas of Lord Shiva",
+            image: "/assets/Deoghar/Baidynath Temple.jpg",
+            embedCode: `<div class="sketchfab-embed-wrapper" style="width:100%;height:100%;"> <iframe style="width:100%;height:100%;border:none;" src="https://sketchfab.com/models/a15887b38f244f478165ae02086db49e/embed?autostart=1"> </iframe></div>`,
+            hotspots: [{ x: 45, y: 30, label: "Main Shikhar", info: "72 feet high..." }]
+          },
+          {
+            id: "forest", title: "Betla Forest", location: "Palamu",
+            description: "Dense sal forests home to tigers, elephants and over 200 bird species",
+            image: "/assets/Netarhat/Betla National Park.webp",
+            embedCode: `<div class="sketchfab-embed-wrapper" style="width:100%;height:100%;"> <iframe style="width:100%;height:100%;border:none;" src="https://sketchfab.com/models/9153c2b370934758bf14c395abe36b27/embed?autostart=1"> </iframe></div>`,
+            hotspots: [{ x: 50, y: 25, label: "Sal Tree Canopy", info: "Sal trees dominate 80%..." }]
+          },
+          {
+            id: "waterfall", title: "Hundru Falls", location: "Ranchi",
+            description: "One of the highest waterfalls plunging 98 meters",
+            image: "/assets/Ranchi/Hundru Falls.webp",
+            embedCode: `<div class="sketchfab-embed-wrapper" style="width:100%;height:100%;"> <iframe style="width:100%;height:100%;border:none;" src="https://sketchfab.com/models/bd4fb9aaf01043a29591ac9dc4a0ead8/embed?autostart=1"> </iframe></div>`,
+            hotspots: [{ x: 50, y: 20, label: "Waterfall Crest", info: "Subarnarekha river drops 98m" }]
+          },
+          {
+            id: "jagannath", title: "Jagannath Temple", location: "Ranchi",
+            description: "A replica of the Puri temple atop a scenic hillock",
+            image: "/assets/Ranchi/Tagore hill.jpg",
+            embedCode: `<div class="sketchfab-embed-wrapper" style="width:100%;height:100%;"> <iframe style="width:100%;height:100%;border:none;" src="https://sketchfab.com/models/ae1add510f8745c484ef23e1413a52a6/embed?autostart=1"> </iframe></div>`,
+            hotspots: [{ x: 48, y: 25, label: "Temple Hillock", info: "Panoramic view of Ranchi" }]
+          }
+        ];
+
+        const dialogues = {
+            "load": "Namaste! 🙏 Main hoon Sarita Didi, aapki Jharkhand guide! Welcome to the land of forests, waterfalls and ancient temples. Explore our 3D models and let me tell you the stories behind them!",
+            "baidyanath": "Jai Bholenath! 🕉️ You've chosen the most sacred site in Jharkhand — Baidyanath Temple in Deoghar. One of the 12 Jyotirlingas, it is believed that Lord Shiva himself resides here. The temple is over 1,000 years old. During Shravan Mela, over 8 million devotees walk barefoot from Sultanganj carrying holy Ganga water — it is the world's largest religious walk!",
+            "forest": "Jharkhand means 'Land of Forests' and Betla is its crown jewel! 🌿 Betla National Park was India's first Project Tiger reserve in 1973. Home to 50+ tigers, 200+ elephants, ghariyals, 180+ bird species. The ancient Betla Fort ruins inside the forest date back to the 16th century Chero dynasty. Best visited October to March!",
+            "waterfall": "Suniye! 💧 Hundru Falls is my personal favourite! The Subarnarekha river drops a dramatic 98 metres into a rocky gorge — it is the 34th highest waterfall in India! Local legend says a group of tribal warriors hid here during a battle. After monsoon (October–November) the falls are absolutely magical. Carry water shoes — the rocks are slippery!",
+            "jagannath": "Jai Jagannath! 🏛️ This temple on Ranchi's hillock was built in 1691 by the Nagvanshi king Thakur Ani Nath Shahdeo. It is a near-perfect replica of the Puri Jagannath Temple. Every year, the Rath Yatra here draws 500,000+ people — it is Ranchi's biggest festival. Climb the 432 steps for a breathtaking panoramic view of the entire city!",
+            "hotspot": "Oh, great choice! You found a hidden story. Every stone and tree in Jharkhand has a legend attached to it. Click more pins to discover more secrets! 🔍",
+            "planner": "Planning a trip? Bahut accha! Let me help you plan the perfect Jharkhand adventure below. I'll make sure you don't miss anything! 🗺️"
+        };
+
+        const rawItineraries = {
+            "2": [
+                {
+                    day: 1, 
+                    acts: [
+                        { time: "8AM", title: "Jagannath Temple Hill", loc: "Ranchi", desc: "Climb 432 steps at sunrise. Nearby breakfast: Durga Hotel (try Litti Chokha ₹60)", tip: "Reach before 7:30 AM to avoid crowds. The sunrise view is unforgettable.", img: "jagannath" },
+                        { time: "12PM", title: "Hundru Falls", loc: "Ranchi", desc: "45 km from Ranchi, 1.5hr drive. Stay at the base for 2–3 hours.", tip: "Carry packed lunch. No good restaurants near the falls.", img: "waterfall" },
+                        { time: "5PM", title: "Return to Ranchi", loc: "Ranchi", desc: "Dinner at Kaveri Restaurant. Try: Rugra mushroom curry, Mahua kheer, Handia rice beer", tip: "Best tribal thali in Ranchi!" }
+                    ]
+                },
+                {
+                    day: 2,
+                    acts: [
+                        { time: "7AM", title: "Dassam Falls", loc: "Ranchi", desc: "144-foot waterfall on Kanchi river, less crowded than Hundru.", tip: "This is Jharkhand's best kept secret!" },
+                        { time: "1PM", title: "Ranchi Lake & Tribal Museum", loc: "Ranchi", desc: "See Santali, Munda, Ho tribe artifacts." },
+                        { time: "4PM", title: "Pahari Mandir & Shopping", loc: "Ranchi", desc: "Shop Tribal handicrafts at Ranchi Market.", tip: "Buy Dokra metal craft, Tussar silk sarees, bamboo products" }
+                    ]
+                }
+            ],
+            "3": [
+                // Day 1 same as 2-day
+                {
+                    day: 1, 
+                    acts: [
+                        { time: "8AM", title: "Jagannath Temple Hill", loc: "Ranchi", desc: "Climb 432 steps at sunrise.", tip: "Reach before 7:30 AM to avoid crowds.", img: "jagannath" },
+                        { time: "12PM", title: "Hundru Falls", loc: "Ranchi", desc: "45 km from Ranchi, 1.5hr drive.", tip: "Carry packed lunch.", img: "waterfall" },
+                    ]
+                },
+                {
+                    day: 2,
+                    acts: [
+                        { time: "6AM", title: "Drive to Deoghar", loc: "Deoghar", desc: "250 km, 5 hrs. En route stop: Giridih — Parasnath Hill.", tip: "Highest peak in Jharkhand at 1350m, stunning views" },
+                        { time: "2PM", title: "Baidyanath Temple", loc: "Deoghar", desc: "Go for evening aarti at 5:30 PM.", tip: "The evening aarti is absolutely mesmerising — arrive 30 min early.", img: "baidyanath" },
+                        { time: "7PM", title: "Naulakha Mandir", loc: "Deoghar", desc: "Beautiful white marble temple. Local dinner: khaja sweets, tilkut." }
+                    ]
+                },
+                {
+                    day: 3,
+                    acts: [
+                        { time: "7AM", title: "Trikuta Parvat", loc: "Deoghar", desc: "3-peaked hill with ropeway.", tip: "Take the ropeway for aerial views of entire Deoghar" },
+                        { time: "1PM", title: "Satsang Ashram", loc: "Deoghar", desc: "Peaceful spiritual retreat. Drive back to Ranchi." }
+                    ]
+                }
+            ],
+            "5": [
+                { day: 1, acts: [{ time: "All Day", title: "Ranchi City Tour", loc: "Ranchi", desc: "Jagannath Temple + Pahari Mandir + Tribal Museum + Ranchi Lake", img: "jagannath" }] },
+                { day: 2, acts: [{ time: "All Day", title: "Waterfall Trail", loc: "Ranchi", desc: "Hundru Falls + Dassam Falls + Jonha Falls", tip: "Carry a picnic lunch!", img: "waterfall" }] },
+                { day: 3, acts: [
+                    { time: "Morning", title: "Drive to Betla", loc: "Palamu", desc: "160 km, 4 hrs. Jeep safari morning (6–9 AM).", tip: "Book jeep safari in advance at betlanationalpark.in", img: "forest" },
+                    { time: "Afternoon", title: "Betla Fort Ruins", loc: "Palamu", desc: "Explore the ancient ruins. Night stay inside forest at Forest Guest House." }
+                ]},
+                { day: 4, acts: [{ time: "All Day", title: "Elephants & Transit", loc: "Deoghar", desc: "Early morning elephant safari in Betla. Drive to Deoghar. Evening aarti at Baidyanath.", img: "baidyanath" }] },
+                { day: 5, acts: [{ time: "All Day", title: "Deoghar Sights", loc: "Deoghar", desc: "Baidyanath Temple darshan + Trikuta Parvat ropeway. Drive back." }] }
+            ],
+            "7": [
+                { day: 1, acts: [{ time: "All Day", title: "Ranchi City Tour", loc: "Ranchi", desc: "City highlights", img: "jagannath" }] },
+                { day: 2, acts: [{ time: "All Day", title: "Waterfalls", loc: "Ranchi", desc: "Hundru & Dassam Falls", img: "waterfall" }] },
+                { day: 3, acts: [{ time: "All Day", title: "Betla National Park", loc: "Palamu", desc: "Tiger Safari & Fort Ruins", img: "forest" }] },
+                { day: 4, acts: [
+                    { time: "All Day", title: "Drive to Netarhat", loc: "Netarhat", desc: "Queen of Chotanagpur at 3700 feet. Magnolia Point sunset. Lodh Falls nearby.", tip: "Magnolia Point sunset is rated one of India's top 10 sunsets" }
+                ]},
+                { day: 5, acts: [{ time: "All Day", title: "Netarhat to Deoghar", loc: "Deoghar", desc: "6 hr drive. Evening — Baidyanath Temple aarti", img: "baidyanath" }] },
+                { day: 6, acts: [
+                    { time: "All Day", title: "Deoghar & Basukinath", loc: "Deoghar", desc: "Deoghar sightseeing + Basukinath Temple.", tip: "Basukinath is less crowded, more peaceful — the locals' favourite" }
+                ]},
+                { day: 7, acts: [
+                    { time: "All Day", title: "Return via Hazaribagh", loc: "Rajrappa", desc: "Rajrappa Temple (confluence of Damodar & Bhairavi rivers).", tip: "Rajrappa is Jharkhand's most visited temple after Baidyanath — don't miss it!" }
+                ]}
+            ]
+        };
+
+        // --- RENDER 3D CARDS --- //
+        const cardGrid = document.getElementById('cardGrid');
+        attractions.forEach(attr => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-thumbnail">
+                    <img src="${attr.image}" alt="${attr.title}">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">${attr.title}</h3>
+                    <div class="card-location">📍 ${attr.location}</div>
+                    <p class="card-desc">${attr.description}</p>
+                    <button class="explore-btn">Explore in 3D &rarr;</button>
+                </div>
+            `;
+            card.addEventListener('click', () => {
+                window.dispatchEvent(new CustomEvent('guideTalk', { detail: attr.id }));
+                openModal(attr);
+            });
+            cardGrid.appendChild(card);
+        });
+
+        const viewerModal = document.getElementById('viewerModal');
+        const iframeContainer = document.getElementById('iframeContainer');
+        const hotspotLayer = document.getElementById('hotspotLayer');
+
+        function openModal(attr) {
+            document.getElementById('modalTitle').textContent = attr.title;
+            iframeContainer.innerHTML = attr.embedCode;
+            hotspotLayer.innerHTML = '';
+            attr.hotspots.forEach(hs => {
+                const pin = document.createElement('div');
+                pin.className = 'hotspot-pin';
+                pin.style.left = `${hs.x}%`; pin.style.top = `${hs.y}%`;
+                
+                const tt = document.createElement('div');
+                tt.className = 'tooltip';
+                tt.innerHTML = `<div class="tooltip-title">${hs.label}</div><div>${hs.info}</div>`;
+                pin.appendChild(tt);
+
+                pin.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.dispatchEvent(new CustomEvent('guideTalk', { detail: 'hotspot' }));
+                    document.querySelectorAll('.tooltip').forEach(t => t.classList.remove('active'));
+                    tt.classList.add('active');
+                });
+                hotspotLayer.appendChild(pin);
+            });
+            viewerModal.classList.add('active');
+        }
+
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            viewerModal.classList.remove('active');
+            iframeContainer.innerHTML = '';
+        });
+
+        // --- TRIBAL GUIDE LOGIC --- //
+        const guideContainer = document.getElementById('guideContainer');
+        const saritaChar = document.getElementById('saritaChar');
+        const speechBubble = document.getElementById('speechBubble');
+        const speechText = document.getElementById('speechText');
+        const skipBtn = document.getElementById('skipBtn');
+        const arm = document.getElementById('saritaArm');
+        
+        let typeInterval;
+        let hideTimeout;
+        let currentFullText = "";
+
+        function speak(text) {
+            // Wiggle animation
+            saritaChar.classList.remove('wiggle');
+            void saritaChar.offsetWidth; // trigger reflow
+            saritaChar.classList.add('wiggle');
+
+            clearInterval(typeInterval);
+            clearTimeout(hideTimeout);
+            
+            speechBubble.classList.add('visible');
+            guideContainer.classList.add('active');
+            saritaChar.classList.add('talking');
+            
+            currentFullText = text;
+            speechText.innerHTML = "";
+            let i = 0;
+            
+            typeInterval = setInterval(() => {
+                speechText.innerHTML += text.charAt(i);
+                i++;
+                if (i >= text.length) {
+                    finishSpeaking();
+                }
+            }, 30); // typing speed
+        }
+
+        function finishSpeaking() {
+            clearInterval(typeInterval);
+            speechText.innerHTML = currentFullText;
+            saritaChar.classList.remove('talking');
+            
+            hideTimeout = setTimeout(() => {
+                speechBubble.classList.remove('visible');
+                guideContainer.classList.remove('active');
+            }, 8000); // hide after 8s
+        }
+
+        skipBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            finishSpeaking();
+        });
+
+        window.addEventListener('guideTalk', (e) => {
+            const key = e.detail;
+            if (dialogues[key]) speak(dialogues[key]);
+        });
+
+        // Page Load Wave
+        setTimeout(() => {
+            arm.classList.add('wave');
+            speak(dialogues.load);
+        }, 1000);
+
+        // Planner Scroll Trigger
+        const plannerSection = document.getElementById('tripPlanner');
+        let plannerTriggered = false;
+        window.addEventListener('scroll', () => {
+            if (!plannerTriggered && window.scrollY + window.innerHeight > plannerSection.offsetTop + 100) {
+                plannerTriggered = true;
+                window.dispatchEvent(new CustomEvent('guideTalk', { detail: 'planner' }));
+            }
+        });
+
+        // --- PLANNER LOGIC --- //
+        const state = { days: null, city: null, type: null };
+        const generateBtn = document.getElementById('generateBtn');
+
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const group = e.target.parentElement.id.replace('Group', '');
+                document.querySelectorAll(`#${e.target.parentElement.id} .toggle-btn`).forEach(b => b.classList.remove('selected'));
+                e.target.classList.add('selected');
+                state[group] = e.target.getAttribute('data-val');
+                
+                if (state.days && state.city && state.type) {
+                    generateBtn.style.display = 'block';
+                }
+            });
+        });
+
+        generateBtn.addEventListener('click', () => {
+            generateItinerary(state.days, state.city);
+        });
+
+        function generateItinerary(days, city) {
+            const content = document.getElementById('itineraryContent');
+            const container = document.getElementById('itineraryContainer');
+            content.innerHTML = '';
+            
+            // Basic fallback if exact data missing
+            let data = rawItineraries[days];
+            if (!data) data = rawItineraries["2"]; // fallback
+
+            // City overrides logic
+            let modifiedData = JSON.parse(JSON.stringify(data));
+            if (city === "Deoghar") {
+                modifiedData[0].acts.unshift({ time: "6AM", title: "Baidyanath Temple Darshan", loc: "Deoghar", desc: "Start the trip auspiciously.", img: "baidyanath" });
+            } else if (city === "Dhanbad") {
+                modifiedData[0].acts.unshift({ time: "8AM", title: "Maithon & Panchet Dam", loc: "Dhanbad", desc: "Beautiful reservoirs.", tip: "Dhanbad is the coal capital but Maithon is a hidden gem" });
+            } else if (city === "Jamshedpur") {
+                modifiedData[0].acts.unshift({ time: "9AM", title: "Jubilee Park & Dimna Lake", loc: "Jamshedpur", desc: "Tata Steel's gift.", tip: "India's cleanest industrial city." });
+            }
+
+            modifiedData.forEach(dayInfo => {
+                let actsHtml = '';
+                dayInfo.acts.forEach(act => {
+                    let imgHtml = '';
+                    if (act.img) {
+                        const attr = attractions.find(a => a.id === act.img);
+                        if (attr) imgHtml = `<img src="${attr.image}" class="mini-thumb">`;
+                    }
+                    
+                    let tipHtml = act.tip ? `<div class="act-tip">💡 ${act.tip}</div>` : '';
+                    
+                    actsHtml += `
+                        <div class="activity">
+                            <div class="act-time">${act.time}</div>
+                            <div class="act-title">${imgHtml} ${act.title} <span style="font-size:0.8rem;color:#f0a500;font-weight:400">📍 ${act.loc}</span></div>
+                            <div class="act-desc">${act.desc}</div>
+                            ${tipHtml}
+                        </div>
+                    `;
+                });
+
+                content.innerHTML += `
+                    <div class="timeline-day">
+                        <div class="timeline-line"></div>
+                        <div class="day-badge">D${dayInfo.day}</div>
+                        <div class="day-content">
+                            ${actsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.style.display = 'block';
+            
+            // Scroll to itinerary
+            container.scrollIntoView({ behavior: 'smooth' });
+            
+            // Guide talks
+            window.dispatchEvent(new CustomEvent('guideTalk', { detail: 'hotspot' })); // generic happy msg
+        }
+
+    </script>
+</body>
+</html>

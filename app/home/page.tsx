@@ -14,6 +14,9 @@ import SectionStats from '@/components/custom/SectionStats';
 import SectionBrutalistGrid from '@/components/custom/SectionBrutalistGrid';
 import SectionKineticText from '@/components/custom/SectionKineticText';
 import SectionStaggeredReveal from '@/components/custom/SectionStaggeredReveal';
+import Section3DModels from '@/components/custom/Section3DModels';
+import SectionTripPlanner from '@/components/custom/SectionTripPlanner';
+import TribalGuideCharacter from '@/components/custom/TribalGuideCharacter';
 import Footer from '@/components/custom/Footer';
 
 export default function HomePage() {
@@ -122,7 +125,10 @@ export default function HomePage() {
       <SectionKineticText />
       <SectionStaggeredReveal />
       <SectionStats />
+      <Section3DModels />
+      <SectionTripPlanner />
       <Footer />
+      <TribalGuideCharacter />
     </div>
   );
 }
