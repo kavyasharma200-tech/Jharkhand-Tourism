@@ -9,64 +9,63 @@ export default function InfiniteEntry() {
 
   return (
     <div className="relative w-full h-[100dvh] bg-white overflow-hidden">
-      {/* Fixed Overlays */}
+
+      {/* Top-left: coordinates */}
       <div className="absolute top-8 left-8 z-20 pointer-events-none">
-        <h1 className="font-['Anton'] text-[11vw] text-black leading-none tracking-[-0.02em]">
-          JHARKHAND
-        </h1>
-      </div>
-      
-      <div className="absolute top-8 right-8 z-20 pointer-events-none text-right">
-        <p className="font-['Space_Mono'] text-[10px] text-black tracking-widest">
+        <p className="font-['Space_Mono'] text-[10px] text-black/40 tracking-widest">
           23.6102° N / 85.2799° E
         </p>
       </div>
-      
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-        <p className="font-['Space_Mono'] text-[9px] text-black/40 tracking-[0.25em] uppercase">
-          Drag or Scroll to explore
+
+      {/* Top-right: hint */}
+      <div className="absolute top-8 right-8 z-20 pointer-events-none">
+        <p className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.25em] uppercase">
+          Drag or scroll to explore
         </p>
       </div>
 
-      {/* Centered Hollow Text */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none select-none">
-        <h2 
-          className="font-['Anton'] text-[20vw] leading-none tracking-tighter opacity-10"
+      {/* Centered hollow JHARKHAND — main hero text */}
+      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none select-none">
+        <h1
+          className="font-['Anton'] leading-none tracking-tighter whitespace-nowrap"
           style={{
-            WebkitTextStroke: '1px black',
-            color: 'transparent'
+            fontSize: 'clamp(4rem, 18vw, 18rem)',
+            WebkitTextStroke: '1.5px rgba(0,0,0,0.15)',
+            color: 'transparent',
           }}
         >
           JHARKHAND
-        </h2>
+        </h1>
       </div>
 
-      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30">
-        <button 
+      {/* Enter button */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30">
+        <button
           onClick={() => router.push('/home')}
-          className="border border-black text-black bg-transparent px-[48px] py-[16px] font-['Space_Mono'] text-[11px] tracking-[0.3em] uppercase hover:bg-black hover:text-white transition-colors duration-300"
-          data-cursor-grow
+          className="border border-black/70 text-black bg-transparent px-12 py-4 font-['Space_Mono'] text-[11px] tracking-[0.3em] uppercase hover:bg-black hover:text-white transition-colors duration-300"
         >
           ENTER JHARKHAND
         </button>
       </div>
 
-      {/* Draggable Grid */}
-      <DraggableContainer variant="masonry" className="bg-white w-full h-full">
-        <GridBody className="w-full h-full">
-          {JHARKHAND_IMAGES.map((src, i) => (
-            <GridItem key={i} className="w-[300px] h-[400px]">
-              <img 
-                src={src} 
-                alt="Jharkhand Preview" 
-                loading="eager" 
-                className="w-full h-full object-cover contrast-110 pointer-events-none rounded-none" 
-              />
-            </GridItem>
-          ))}
-        </GridBody>
-      </DraggableContainer>
+      {/* Draggable image grid — z-10, sits behind the hollow text overlay */}
+      <div className="absolute inset-0 z-10">
+        <DraggableContainer variant="masonry" className="bg-white w-full h-full">
+          <GridBody className="w-full h-full">
+            {JHARKHAND_IMAGES.map((src, i) => (
+              <GridItem key={i} className="w-[280px] h-[380px]">
+                <img
+                  src={src}
+                  alt="Jharkhand"
+                  loading="eager"
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+              </GridItem>
+            ))}
+          </GridBody>
+        </DraggableContainer>
+      </div>
+
     </div>
   )
 }
-

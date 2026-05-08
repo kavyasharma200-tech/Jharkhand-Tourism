@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Anton, Playfair_Display, Space_Mono, DM_Serif_Display, Inter } from 'next/font/google'
 import LenisProvider from '@/components/custom/LenisProvider'
 import GrainOverlay from '@/components/custom/GrainOverlay'
-import CustomCursor from '@/components/custom/CustomCursor'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })

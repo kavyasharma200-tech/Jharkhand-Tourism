@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Navbar from '@/components/custom/Navbar'
 import SectionHero from '@/components/custom/SectionHero'
 import SectionMorphText from '@/components/custom/SectionMorphText'
@@ -15,63 +14,43 @@ import Footer from '@/components/custom/Footer'
 
 export default function HomePage() {
   useEffect(() => {
-    // Wait for Lenis to be initialized globally by LenisProvider
-    let rafId: number;
+    let rafId: number
+
     const tickerUpdate = (time: number) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis
-      if (lenis) {
-        lenis.raf(time * 1000)
-      }
+      if (lenis) lenis.raf(time * 1000)
     }
-    
-    const initGSAPLenis = () => {
+
+    const init = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis
       if (lenis) {
-        gsap.registerPlugin(ScrollTrigger)
         gsap.ticker.add(tickerUpdate)
         gsap.ticker.lagSmoothing(0)
-        
-        // Add snapping for sections
-        const sections = gsap.utils.toArray('section')
-        if (sections.length > 0) {
-          ScrollTrigger.create({
-            trigger: "main",
-            start: "top top",
-            end: "bottom bottom",
-            snap: {
-              snapTo: 1 / 7,
-              duration: { min: 0.3, max: 0.7 },
-              delay: 0.1,
-              ease: "power2.inOut"
-            }
-          })
-        }
       } else {
-        rafId = requestAnimationFrame(initGSAPLenis)
+        rafId = requestAnimationFrame(init)
       }
     }
-    
-    initGSAPLenis()
+
+    init()
 
     return () => {
       gsap.ticker.remove(tickerUpdate)
       if (rafId) cancelAnimationFrame(rafId)
-      if (typeof window !== 'undefined') {
-        ScrollTrigger.getAll().forEach(t => t.kill())
-      }
     }
   }, [])
 
   return (
     <main>
       <Navbar />
-      <SectionHero />          {/* ScrollExpandMedia — Jharkhand video/image */}
-      <SectionMorphText />     {/* IntroAnimation — "Jharkhand is a tourism paradise" */}
-      <SectionImageReveal />   {/* Image trail — 5 major cities */}
-      <SectionAnimatedSlideshow /> {/* HoverSlider — natural wonders */}
-      <SectionZoomParallax />  {/* Multi-layer parallax zoom */}
-      <SectionStoryScroll />   {/* FlowArt — 4 stories: forest, falls, culture, wildlife */}
-      <SectionStats />         {/* Custom — GSAP counter animation */}
+      <SectionHero />
+      <SectionMorphText />
+      <SectionImageReveal />
+      <SectionAnimatedSlideshow />
+      <SectionZoomParallax />
+      <SectionStoryScroll />
+      <SectionStats />
       <Footer />
     </main>
   )
