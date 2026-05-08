@@ -44,7 +44,6 @@ export default function SectionAnimatedSlideshow() {
               key={i}
               index={i}
               imageUrl={slide.image}
-              src={slide.image}
               alt={slide.label}
               className="object-cover contrast-110 w-full h-full"
             />

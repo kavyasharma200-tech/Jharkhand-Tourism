@@ -11,6 +11,7 @@ interface TextStaggerHoverProps {
 interface HoverSliderImageProps {
   index: number
   imageUrl: string
+  alt?: string
 }
 interface HoverSliderProps {}
 interface HoverSliderContextValue {
@@ -154,7 +155,7 @@ HoverSliderImageWrap.displayName = "HoverSliderImageWrap"
 export const HoverSliderImage = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & HoverSliderImageProps
->(({ index, imageUrl, className, ...props }, ref) => {
+>(({ index, imageUrl, alt, className, ...props }, ref) => {
   const { activeSlide } = useHoverSliderContext()
   const isActive = activeSlide === index
   return (
@@ -166,7 +167,7 @@ export const HoverSliderImage = React.forwardRef<
     >
       <img
         src={imageUrl}
-        alt=""
+        alt={alt || ""}
         className="h-full w-full object-cover"
       />
     </motion.div>
