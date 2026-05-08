@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Tourism - 360° Model Viewer</title>
+    <!-- Google Fonts Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* CSS reset and base styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a0a2e; /* deep navy */
+            color: #ffffff;
+            min-height: 100vh;
+            /* Subtle tribal pattern background */
+            background-image: radial-gradient(#ffffff 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0;
+            background-attachment: fixed;
+            background-color: #0a0a2e; /* Reset after pattern */
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(10,10,46,0.95) 0%, rgba(10,10,46,0.85) 100%);
+            z-index: -1;
+        }
+
+        /* Header */
+        header { text-align: center; padding: 3rem 1rem; }
+        h1 { font-size: 2.5rem; color: #f0a500; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(240, 165, 0, 0.3); }
+        p.subtitle { font-size: 1.1rem; color: #e0e0e0; font-weight: 300; }
+
+        /* Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            padding: 2rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); padding: 2rem; }
+        }
+        @media (max-width: 600px) {
+            .grid-container { grid-template-columns: 1fr; padding: 1rem; }
+        }
+
+        /* Card */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 20px rgba(240, 165, 0, 0.2);
+            border-color: rgba(240, 165, 0, 0.4);
+        }
+
+        /* Card Thumbnail Placeholder */
+        .card-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        .card-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .card-thumbnail .placeholder-text {
+            color: #f0a500;
+            font-weight: 600;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #ffffff;
+        }
+        .card-location {
+            font-size: 0.85rem;
+            color: #f0a500;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #cccccc;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        .explore-btn {
+            background: transparent;
+            border: 1px solid #f0a500;
+            color: #f0a500;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .card:hover .explore-btn {
+            background: #f0a500;
+            color: #0a0a2e;
+            box-shadow: 0 0 15px rgba(240, 165, 0, 0.5);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 46, 0.98);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+        }
+        .modal.active { display: flex; }
+        
+        .modal-content-wrapper {
+            position: relative;
+            flex-grow: 1;
+            width: 100%;
+            height: calc(100% - 70px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .iframe-container {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        /* Sketchfab embed specifics */
+        .sketchfab-embed-wrapper {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Hotspots */
+        .hotspot-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Let clicks pass through except on pins */
+            z-index: 10;
+        }
+        .hotspot-pin {
+            position: absolute;
+            width: 20px; height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .hotspot-pin::before, .hotspot-pin::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid #f0a500;
+            animation: pulse 2s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        .hotspot-pin::before { width: 30px; height: 30px; }
+        .hotspot-pin::after { width: 45px; height: 45px; animation-delay: 0.5s; }
+
+        @keyframes pulse {
+            0% { width: 20px; height: 20px; opacity: 1; }
+            100% { width: 60px; height: 60px; opacity: 0; }
+        }
+
+        .tooltip {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 46, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 12px;
+            width: max-content;
+            max-width: 250px;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .tooltip.active {
+            display: block;
+        }
+        .tooltip-title {
+            color: #f0a500;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tooltip-desc {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #e0e0e0;
+        }
+
+        /* Bottom Control Bar */
+        .bottom-bar {
+            height: 70px;
+            background: rgba(10, 10, 46, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 20;
+        }
+        .bar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f0a500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .close-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .close-btn:hover {
+            background: #f0a500;
+            color: #0a0a2e;
+            transform: rotate(90deg);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Jharkhand 360°</h1>
+        <p class="subtitle">Immersive Digital Exhibits</p>
+    </header>
+
+    <div class="grid-container" id="cardGrid">
+        <!-- Cards generated by JS -->
+    </div>
+
+    <!-- Fullscreen Modal -->
+    <div class="modal" id="viewerModal">
+        <div class="modal-content-wrapper">
+            <div class="iframe-container" id="iframeContainer">
+                <!-- Embed will go here -->
+            </div>
+            <div class="hotspot-layer" id="hotspotLayer">
+                <!-- Hotspots generated by JS -->
+            </div>
+        </div>
+        <div class="bottom-bar">
+            <div class="bar-title">
+                <span id="modalTitle">Attraction Name</span>
+                <span style="font-size: 0.8em; color: #fff; font-weight: 300;"> | Jharkhand Tourism</span>
+            </div>
+            <button class="close-btn" id="closeBtn">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        const attractions = [
+          {
+            id: "baidyanath",
+            title: "Baidyanath Temple",
+            location: "Deoghar, Jharkhand",
+            description: "One of the 12 sacred Jyotirlingas of Lord Shiva",
+            embedCode: `<div class="sketchfab-embed-wrapper"> <iframe title="baidyanath temple model" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/a15887b38f244f478165ae02086db49e/embed?autostart=1"> </iframe></div>`,
+            hotspots: [
+              { x: 45, y: 30, label: "Main Shikhar", info: "The central spire rises 72 feet, built in 7th century Nagara architectural style" },
+              { x: 50, y: 75, label: "Sanctum Entrance", info: "Ancient stone carvings adorn the entrance, depicting scenes from Shiva Purana" }
+            ]
+          },
+          {
+            id: "forest",
+            title: "Betla Forest",
+            location: "Palamu, Jharkhand",
+            description: "Dense sal forests home to tigers, elephants and over 200 bird species",
+            embedCode: `<div class="sketchfab-embed-wrapper"> <iframe title="Forest" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/9153c2b370934758bf14c395abe36b27/embed?autostart=1"> </iframe></div>`,
+            hotspots: [
+              { x: 50, y: 25, label: "Sal Tree Canopy", info: "Sal trees dominate 80% of Jharkhand's forests, some over 200 years old" },
+              { x: 35, y: 70, label: "Wildlife Trail", info: "This trail leads to the core zone of Betla National Park, India's first tiger reserve" }
+            ]
+          },
+          {
+            id: "waterfall",
+            title: "Hundru Falls",
+            location: "Ranchi, Jharkhand",
+            description: "One of the highest waterfalls in Jharkhand, plunging 98 meters into a rocky gorge",
+            embedCode: `<div class="sketchfab-embed-wrapper"> <iframe title="Waterfall display at Hilton, Waikiki Hawaii" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/bd4fb9aaf01043a29591ac9dc4a0ead8/embed?autostart=1"> </iframe></div>`,
+            hotspots: [
+              { x: 50, y: 20, label: "Waterfall Crest", info: "The Subarnarekha river dramatically drops 98m here, best visited post-monsoon (Oct–Nov)" },
+              { x: 55, y: 75, label: "Gorge Basin", info: "The natural pool at the base is a popular swimming and picnic spot for locals" }
+            ]
+          },
+          {
+            id: "jagannath",
+            title: "Jagannath Temple, Ranchi",
+            location: "Ranchi, Jharkhand",
+            description: "A replica of the Puri Jagannath Temple, built atop a scenic hillock in Ranchi",
+            embedCode: `<div class="sketchfab-embed-wrapper"> <iframe title="The Ranchi Jagannath Temple architecture." frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/ae1add510f8745c484ef23e1413a52a6/embed?autostart=1"> </iframe></div>`,
+            hotspots: [
+              { x: 48, y: 25, label: "Temple Hillock", info: "Situated 300 feet above the city, offering a panoramic view of Ranchi" },
+              { x: 62, y: 68, label: "Rath Yatra Route", info: "Every year thousands gather here for the grand chariot festival (Rath Yatra)" }
+            ]
+          }
+        ];
+
+        const cardGrid = document.getElementById('cardGrid');
+        const viewerModal = document.getElementById('viewerModal');
+        const iframeContainer = document.getElementById('iframeContainer');
+        const hotspotLayer = document.getElementById('hotspotLayer');
+        const modalTitle = document.getElementById('modalTitle');
+        const closeBtn = document.getElementById('closeBtn');
+
+        // Render Cards
+        attractions.forEach((attr, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            // Initial opacity for GSAP stagger
+            card.style.opacity = 0;
+            
+            card.innerHTML = `
+                <div class="card-thumbnail">
+                    <div class="placeholder-text">${attr.title} <br><span style="font-size: 0.8em; font-weight: 300;">3D Model</span></div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">${attr.title}</h3>
+                    <div class="card-location">📍 ${attr.location}</div>
+                    <p class="card-desc">${attr.description}</p>
+                    <button class="explore-btn">Explore in 3D &rarr;</button>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => openModal(attr));
+            cardGrid.appendChild(card);
+        });
+
+        // Entrance Animation
+        gsap.to('.card', {
+            opacity: 1,
+            y: -10,
+            duration: 0.8,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.2
+        });
+
+        let activeTooltip = null;
+
+        function openModal(attr) {
+            // Set modal content
+            modalTitle.textContent = attr.title;
+            iframeContainer.innerHTML = attr.embedCode;
+            
+            // Render Hotspots
+            hotspotLayer.innerHTML = '';
+            attr.hotspots.forEach(hs => {
+                const pin = document.createElement('div');
+                pin.className = 'hotspot-pin';
+                pin.style.left = `${hs.x}%`;
+                pin.style.top = `${hs.y}%`;
+                
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.innerHTML = `
+                    <div class="tooltip-title">${hs.label}</div>
+                    <div class="tooltip-desc">${hs.info}</div>
+                `;
+                pin.appendChild(tooltip);
+
+                pin.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(activeTooltip && activeTooltip !== tooltip) {
+                        gsap.to(activeTooltip, {opacity: 0, y: 10, duration: 0.3, onComplete: () => activeTooltip.classList.remove('active')});
+                    }
+                    
+                    if(tooltip.classList.contains('active')) {
+                        gsap.to(tooltip, {opacity: 0, y: 10, duration: 0.3, onComplete: () => tooltip.classList.remove('active')});
+                        activeTooltip = null;
+                    } else {
+                        tooltip.classList.add('active');
+                        gsap.fromTo(tooltip, {opacity: 0, y: 10}, {opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.7)"});
+                        activeTooltip = tooltip;
+                    }
+                });
+
+                hotspotLayer.appendChild(pin);
+            });
+
+            // Show Modal
+            viewerModal.classList.add('active');
+            gsap.to(viewerModal, {opacity: 1, duration: 0.4, ease: "power2.inOut"});
+        }
+
+        function closeModal() {
+            gsap.to(viewerModal, {
+                opacity: 0, 
+                duration: 0.3, 
+                onComplete: () => {
+                    viewerModal.classList.remove('active');
+                    iframeContainer.innerHTML = ''; // Clear iframe to stop playback
+                    hotspotLayer.innerHTML = '';
+                    activeTooltip = null;
+                }
+            });
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        
+        // Close on clicking outside iframe/hotspots (on the modal background)
+        viewerModal.addEventListener('click', (e) => {
+            if(e.target === viewerModal || e.target.classList.contains('modal-content-wrapper')) {
+                closeModal();
+            } else if (activeTooltip) {
+                // If clicked somewhere else inside modal, close tooltip
+                gsap.to(activeTooltip, {opacity: 0, y: 10, duration: 0.3, onComplete: () => activeTooltip.classList.remove('active')});
+                activeTooltip = null;
+            }
+        });
+
+        // Close on ESC
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape' && viewerModal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
