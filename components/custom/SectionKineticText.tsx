@@ -62,17 +62,15 @@ export default function SectionKineticText() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center justify-center px-6"
+      className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center justify-center px-8 md:px-24 border-t border-white/5"
     >
       {/* Corner meta labels */}
+      {/* Clean corner meta */}
       <div className="absolute top-8 left-8 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
-        JHARKHAND / PULSE
-      </div>
-      <div className="absolute top-8 right-8 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
-        09 // 11
+        JHARKHAND
       </div>
       <div className="absolute bottom-8 left-8 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
-        EDITORIAL / ARCHIVE
+        ARCHIVE
       </div>
 
       {/* Three kinetic lines — clip-overflow so slide-up works */}

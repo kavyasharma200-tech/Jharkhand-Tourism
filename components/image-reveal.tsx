@@ -168,16 +168,7 @@ const Component = React.forwardRef<HTMLDivElement, ComponentProps>(
             >
               {image.alt}
             </h2>
-            <button
-              className={cn(
-                `sm:block hidden p-4 rounded-full transition-all duration-300 ease-out border border-white/10`,
-                activeImage?.id === image.id
-                  ? 'mix-blend-difference z-20 bg-black text-white'
-                  : 'bg-white text-black'
-              )}
-            >
-              <MoveUpRight className='w-8 h-8' />
-            </button>
+            {/* Simplified - removed action button */}
             <div
               className={`h-[2px] bg-white absolute bottom-0 left-0 transition-all duration-300 ease-linear ${
                 activeImage?.id === image.id ? 'w-full' : 'w-0'

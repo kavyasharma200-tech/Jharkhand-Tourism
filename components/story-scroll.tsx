@@ -105,6 +105,11 @@ const FlowArt: React.FC<FlowArtProps> = ({
               end: 'bottom top',
               pin: true,
               pinSpacing: false,
+              snap: {
+                snapTo: 1,
+                duration: 0.8,
+                ease: "power3.inOut"
+              }
             }),
           );
         }

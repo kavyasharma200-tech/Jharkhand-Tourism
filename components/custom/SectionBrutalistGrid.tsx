@@ -62,8 +62,11 @@ export default function SectionBrutalistGrid() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen bg-white overflow-hidden flex items-center justify-center"
+      className="relative w-full h-screen bg-white overflow-hidden flex items-center justify-center border-t border-black/5"
     >
+      <div className="absolute top-12 left-8 md:left-24 z-20">
+         <h2 className="font-['Anton'] text-[4vw] text-black/20 uppercase tracking-widest">Editorial</h2>
+      </div>
       {/* Ghost background text */}
       <span className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
         <span className="font-['Anton'] text-[28vw] leading-none text-black/[0.03] uppercase whitespace-nowrap tracking-tighter">
@@ -150,12 +153,7 @@ export default function SectionBrutalistGrid() {
       {/* Thin border frame */}
       <div className="absolute inset-4 border border-black/6 pointer-events-none z-30" />
 
-      {/* Coordinate label */}
-      <div
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 font-['Space_Mono'] text-[8px] text-black/20 tracking-[0.5em] uppercase"
-      >
-        23.6102° N · 85.2799° E
-      </div>
+      {/* Removed coordinate label */}
     </section>
   );
 }

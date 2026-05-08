@@ -34,8 +34,7 @@ export default function HomePage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).__lenis;
       if (lenis) {
-        // Stop Lenis doing its own smooth scroll — we drive it manually
-        lenis.stop();
+        // Drive Lenis manually through GSAP ticker
         gsap.ticker.add(tickerUpdate);
         gsap.ticker.lagSmoothing(0);
         initSnapping(lenis);
@@ -44,62 +43,65 @@ export default function HomePage() {
       }
     };
 
-    /* ─── One-At-A-Time Section Snapping ─────────────────── */
-    function initSnapping(lenis: { scrollTo: (el: Element, opts: object) => void; start: () => void }) {
-      const sections = Array.from(
-        mainRef.current?.querySelectorAll<HTMLElement>(':scope > section') ?? []
-      );
+    /* ─── Strict One-At-A-Time Navigation ─────────────────── */
+    function initSnapping(lenis: any) {
+      const sections = gsap.utils.toArray('section') as HTMLElement[];
       if (!sections.length) return;
 
-      let current = 0;
-      let animating = false;
+      ScrollTrigger.normalizeScroll(true);
+      let currentIdx = 0;
+      let isAnimating = false;
 
-      const goTo = (idx: number) => {
-        if (animating) return;
-        if (idx < 0 || idx >= sections.length) return;
-        animating = true;
-        current = idx;
+      const goTo = (index: number) => {
+        if (isAnimating || index < 0 || index >= sections.length) return;
+        isAnimating = true;
+        currentIdx = index;
 
-        lenis.scrollTo(sections[idx], {
-          duration: 1.4,
+        lenis.scrollTo(sections[index], {
+          duration: 1.2,
           easing: (t: number) => 1 - Math.pow(1 - t, 4),
-          lock: true,
           onComplete: () => {
-            animating = false;
+            isAnimating = false;
+            ScrollTrigger.refresh();
           },
         });
       };
 
-      const onWheel = (e: WheelEvent) => {
-        e.preventDefault();
-        if (animating) return;
-        if (e.deltaY > 0) goTo(current + 1);
-        else goTo(current - 1);
-      };
+      // Observe intent
+      const observer = ScrollTrigger.observe({
+        type: "wheel,touch,pointer",
+        wheelSpeed: 1,
+        onDown: () => {
+          if (isAnimating) return;
+          
+          // Check current section for pinning/scrubbing progress
+          const activeST = ScrollTrigger.getAll().find(st => st.trigger === sections[currentIdx]);
+          if (activeST && activeST.progress < 0.99) {
+             // Let real scroll happen for scrubbing
+             return;
+          }
+          goTo(currentIdx + 1);
+        },
+        onUp: () => {
+          if (isAnimating) return;
 
-      let touchStartY = 0;
-      const onTouchStart = (e: TouchEvent) => {
-        touchStartY = e.touches[0].clientY;
-      };
-      const onTouchEnd = (e: TouchEvent) => {
-        if (animating) return;
-        const dy = touchStartY - e.changedTouches[0].clientY;
-        if (Math.abs(dy) < 40) return;
-        if (dy > 0) goTo(current + 1);
-        else goTo(current - 1);
-      };
+          const activeST = ScrollTrigger.getAll().find(st => st.trigger === sections[currentIdx]);
+          if (activeST && activeST.progress > 0.01) {
+             // Let real scroll happen for scrubbing back
+             return;
+          }
+          goTo(currentIdx - 1);
+        },
+        tolerance: 20,
+        preventDefault: false
+      });
 
-      window.addEventListener('wheel', onWheel, { passive: false });
-      window.addEventListener('touchstart', onTouchStart, { passive: true });
-      window.addEventListener('touchend', onTouchEnd, { passive: true });
-
-      // Cleanup stored on closure
-      (window as unknown as Record<string, unknown>).__snapCleanup = () => {
-        window.removeEventListener('wheel', onWheel);
-        window.removeEventListener('touchstart', onTouchStart);
-        window.removeEventListener('touchend', onTouchEnd);
+      (window as any).__snapCleanup = () => {
+        observer.kill();
         lenis.start();
       };
+
+      lenis.start();
     }
 
     waitForLenis();

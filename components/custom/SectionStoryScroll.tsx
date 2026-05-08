@@ -5,7 +5,11 @@ import { JHARKHAND_IMAGES } from '@/data/images.data'
 
 export default function SectionStoryScroll() {
   return (
-    <section className="relative w-full bg-white">
+    <section className="relative w-full bg-white border-t border-black/5">
+      <div className="px-8 md:px-24 pt-32 pb-16">
+        <h2 className="font-['Anton'] text-[10vw] md:text-[8vw] leading-none text-black tracking-tight uppercase">Narratives</h2>
+        <p className="font-['Space_Mono'] text-[11px] text-black/40 tracking-[0.4em] mt-4 uppercase">Ancient / Modern / Eternal</p>
+      </div>
       <FlowArt className="bg-white">
         
         <FlowSection

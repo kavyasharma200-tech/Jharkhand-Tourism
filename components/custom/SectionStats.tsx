@@ -48,7 +48,10 @@ export default function SectionStats() {
 
   return (
     <section ref={sectionRef} className="w-full min-h-screen bg-white flex flex-col items-center justify-center py-24 overflow-hidden border-t border-black/5">
-      <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-8 w-full px-8 overflow-x-auto whitespace-nowrap scrollbar-hide">
+      <div className="px-8 md:px-24 w-full mb-12">
+        <h2 className="font-['Anton'] text-[10vw] md:text-[8vw] leading-none text-black tracking-tight uppercase">Statistics</h2>
+      </div>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-8 w-full px-8 md:px-24 overflow-x-auto whitespace-nowrap scrollbar-hide">
         {stats.map((stat, i) => (
           <div key={i} className="flex items-center">
             <div className="flex flex-col items-center text-center">

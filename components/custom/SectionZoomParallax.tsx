@@ -15,11 +15,10 @@ const parallaxImages = [
 
 export default function SectionZoomParallax() {
   return (
-    <section className="relative bg-white w-full overflow-hidden [&_.zoom-parallax-container_img]:contrast-105">
-      {/* Pre-section label */}
-      <div className="absolute top-8 left-0 w-full z-20 flex justify-between px-8 pointer-events-none">
-        <span className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.25em]">LANDSCAPES</span>
-        <span className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.25em]">SCROLL ↓</span>
+    <section className="relative bg-white w-full overflow-hidden [&_.zoom-parallax-container_img]:contrast-105 border-t border-black/5">
+      <div className="px-8 md:px-24 pt-32 pb-16">
+        <h2 className="font-['Anton'] text-[10vw] md:text-[8vw] leading-none text-black tracking-tight uppercase">Landscapes</h2>
+        <p className="font-['Space_Mono'] text-[11px] text-black/40 tracking-[0.4em] mt-4 uppercase">Unbroken / Canopy / Horizon</p>
       </div>
       <ZoomParallax images={parallaxImages} />
     </section>

@@ -64,13 +64,13 @@ export default function SectionStaggeredReveal() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-screen bg-neutral-950 overflow-hidden py-24 px-8 md:px-16"
+      className="relative w-full min-h-screen bg-neutral-950 overflow-hidden py-32 px-8 md:px-24"
     >
       {/* Section header */}
       <div ref={headRef} className="mb-16 flex justify-between items-end">
         <div>
           <p className="font-['Space_Mono'] text-[8px] text-white/30 tracking-[0.6em] uppercase mb-4">
-            10 / ARCHIVE
+            COLLECTION
           </p>
           <h2 className="font-['Anton'] text-[10vw] md:text-[5vw] text-white leading-none uppercase tracking-tight">
             THE COLLECTION
