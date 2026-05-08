@@ -11,34 +11,53 @@ export default function SectionKineticText() {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      const lines = gsap.utils.toArray<HTMLElement>('[data-kinetic-line]', sectionRef.current!);
-      const meta = sectionRef.current!.querySelector<HTMLElement>('[data-kinetic-meta]');
+      const lines = gsap.utils.toArray<HTMLElement>('[data-kline]', sectionRef.current!);
+      const rule = sectionRef.current!.querySelector<HTMLElement>('[data-kline-rule]');
+      const sub = sectionRef.current!.querySelector<HTMLElement>('[data-kline-sub]');
 
-      gsap.set(lines, { yPercent: 110, opacity: 0 });
-      gsap.set(meta, { opacity: 0, y: 20 });
+      // Lines: each masked, slides up from below container
+      lines.forEach((line) => {
+        gsap.set(line, { yPercent: 105 });
+      });
+      gsap.set(rule, { scaleX: 0, transformOrigin: 'center' });
+      gsap.set(sub, { opacity: 0 });
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 60%',
-          end: 'center 40%',
-          scrub: 1.4,
+          start: 'top 55%',
+          end: 'top -10%',
+          scrub: 1.6,
         },
       });
 
-      tl.to(lines, { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: 0.15 }, 0);
-      tl.to(meta, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0.5);
+      tl.to(lines, {
+        yPercent: 0,
+        ease: 'expo.out',
+        duration: 1.4,
+        stagger: 0.18,
+      }, 0)
+      .to(rule, {
+        scaleX: 1,
+        ease: 'expo.out',
+        duration: 0.8,
+      }, 0.4)
+      .to(sub, {
+        opacity: 1,
+        ease: 'power2.out',
+        duration: 0.7,
+      }, 0.6);
 
+      // Horizontal drift on scroll-past — odd lines go right, even go left
       lines.forEach((line, i) => {
-        const dir = i % 2 === 0 ? -1 : 1;
         gsap.to(line, {
-          x: dir * 30,
+          x: i % 2 === 0 ? -40 : 40,
           ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1,
+            scrub: 1.5,
           },
         });
       });
@@ -50,51 +69,45 @@ export default function SectionKineticText() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center justify-center px-8 md:px-24 border-t border-white/5"
+      className="relative w-full min-h-screen bg-black flex flex-col items-center justify-center overflow-hidden border-t border-white/5 py-32"
     >
-      <div className="absolute top-10 left-8 md:left-24 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
-        JHARKHAND
-      </div>
-      <div className="absolute bottom-10 left-8 md:left-24 font-['Space_Mono'] text-[8px] text-white/20 uppercase tracking-[0.6em]">
-        ARCHIVE
-      </div>
+      {/* Corner type marks */}
+      <span className="absolute top-8 left-8 md:left-16 font-['Space_Mono'] text-[7px] text-white/20 uppercase tracking-[0.5em]">JH</span>
+      <span className="absolute top-8 right-8 md:right-16 font-['Space_Mono'] text-[7px] text-white/20 uppercase tracking-[0.5em]">∞</span>
 
-      <div className="w-full flex flex-col items-center -space-y-3 md:-space-y-8 overflow-hidden">
-        <div className="overflow-hidden w-full text-center">
-          <div data-kinetic-line>
-            <span className="font-['Anton'] text-[21vw] leading-none text-white tracking-tighter uppercase whitespace-nowrap">
+      {/* Three masked lines */}
+      <div className="w-full flex flex-col items-center gap-0 overflow-hidden">
+        <div className="overflow-hidden w-full text-center leading-none">
+          <div data-kline>
+            <span className="font-['Anton'] text-[19vw] leading-none text-white uppercase tracking-tighter whitespace-nowrap block">
               WATERFALLS
             </span>
           </div>
         </div>
-        <div className="overflow-hidden w-full text-center">
-          <div data-kinetic-line>
+        <div className="overflow-hidden w-full text-center leading-none">
+          <div data-kline>
             <span
-              className="font-['Playfair_Display'] text-[17vw] leading-none text-transparent italic font-black uppercase whitespace-nowrap"
-              style={{ WebkitTextStroke: '1.5px white' }}
+              className="font-['Playfair_Display'] text-[16vw] leading-none text-transparent italic font-black uppercase whitespace-nowrap block"
+              style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.7)' }}
             >
               WILDERNESS
             </span>
           </div>
         </div>
-        <div className="overflow-hidden w-full text-center">
-          <div data-kinetic-line>
-            <span className="font-['DM_Serif_Display'] text-[23vw] leading-none text-white uppercase whitespace-nowrap">
+        <div className="overflow-hidden w-full text-center leading-none">
+          <div data-kline>
+            <span className="font-['Anton'] text-[22vw] leading-none text-white uppercase tracking-tighter whitespace-nowrap block">
               WONDERS
             </span>
           </div>
         </div>
       </div>
 
-      <div data-kinetic-meta className="mt-12 flex flex-col items-center gap-3">
-        <div className="w-px h-12 bg-white/20" />
-        <p className="font-['Space_Mono'] text-[9px] text-white/30 tracking-[0.5em] uppercase italic">
-          The kinetic heart of the east
-        </p>
-      </div>
-
-      <div className="absolute left-8 top-1/2 -translate-y-1/2 w-px h-48 bg-white/10" />
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 w-px h-48 bg-white/10" />
+      {/* Rule + caption */}
+      <div data-kline-rule className="w-24 h-px bg-white/20 mt-12" />
+      <p data-kline-sub className="font-['Space_Mono'] text-[9px] text-white/25 tracking-[0.5em] uppercase mt-4 italic">
+        The kinetic soul of the east
+      </p>
     </section>
   );
 }

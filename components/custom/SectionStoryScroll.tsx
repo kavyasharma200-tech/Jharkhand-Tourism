@@ -1,91 +1,111 @@
-'use client'
+'use client';
 
-import FlowArt, { FlowSection } from '@/components/story-scroll'
-import { JHARKHAND_IMAGES } from '@/data/images.data'
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import FlowArt, { FlowSection } from '@/components/story-scroll';
+import { JHARKHAND_IMAGES } from '@/data/images.data';
+
+const STORIES = [
+  {
+    num: '01',
+    topic: 'FORESTS',
+    headline: 'Where the jungle breathes',
+    body: 'Saranda — the world\'s largest sal forest. 820 square kilometres of unbroken canopy, ancient and alive.',
+    image: JHARKHAND_IMAGES[1],
+    bg: '#f9f9f9',
+  },
+  {
+    num: '02',
+    topic: 'WATERFALLS',
+    headline: 'Water writing history in stone',
+    body: 'Over 40 named waterfalls. Hundru, Jonha, Dassam, Panchghagh — each carved by the Subarnarekha.',
+    image: JHARKHAND_IMAGES[0],
+    bg: '#ffffff',
+  },
+  {
+    num: '03',
+    topic: 'CULTURE',
+    headline: '32 tribes. One heartbeat.',
+    body: 'Santhali, Munda, Ho, Oraon — traditions older than written history, still alive in every festival.',
+    image: JHARKHAND_IMAGES[3],
+    bg: '#f5f5f5',
+  },
+  {
+    num: '04',
+    topic: 'WILDLIFE',
+    headline: 'Bengal tigers still roam here.',
+    body: 'Betla National Park — one of India\'s first tiger reserves. Elephants, leopards, gaur in untouched habitat.',
+    image: JHARKHAND_IMAGES[5],
+    bg: '#ffffff',
+  },
+];
 
 export default function SectionStoryScroll() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      gsap.set(headingRef.current, { opacity: 0, y: 40 });
+      gsap.to(headingRef.current, {
+        opacity: 1,
+        y: 0,
+        ease: 'expo.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 75%',
+          end: 'top 40%',
+          scrub: 1.2,
+        },
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="relative w-full bg-white border-t border-black/5">
-      <div className="px-8 md:px-24 pt-32 pb-16">
-        <h2 className="font-['Anton'] text-[10vw] md:text-[8vw] leading-none text-black tracking-tight uppercase">Narratives</h2>
-        <p className="font-['Space_Mono'] text-[11px] text-black/40 tracking-[0.4em] mt-4 uppercase">Ancient / Modern / Eternal</p>
+    <section ref={sectionRef} className="relative w-full bg-white border-t border-black/5">
+      <div ref={headingRef} className="px-8 md:px-24 pt-24 pb-16">
+        <h2 className="font-['Anton'] text-[13vw] md:text-[9vw] leading-none text-black tracking-tight uppercase">
+          Narratives
+        </h2>
+        <p className="font-['Space_Mono'] text-[11px] text-black/40 tracking-[0.4em] mt-4 uppercase">
+          Ancient / Modern / Eternal
+        </p>
       </div>
+
       <FlowArt className="bg-white">
-        
-        <FlowSection
-          className="bg-[#f9f9f9] border border-black/5"
-          aria-label="Forests"
-        >
-          <div className="flex flex-col h-full justify-between p-8 md:p-12">
-            <span className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.3em] uppercase">01 / FORESTS</span>
-            <div>
-              <h2 className="font-['Playfair_Display'] text-[8vw] md:text-[6vw] text-black leading-tight">
-                Where the jungle breathes
-              </h2>
-              <p className="font-['DM_Serif_Display'] text-xl md:text-2xl text-black/50 mt-6 max-w-lg">
-                Saranda — the world&apos;s largest sal forest. 820 square kilometres of unbroken canopy.
-              </p>
+        {STORIES.map((story) => (
+          <FlowSection
+            key={story.num}
+            className="border border-black/5"
+            style={{ backgroundColor: story.bg }}
+            aria-label={story.topic}
+          >
+            <div className="flex flex-col h-full justify-between p-8 md:p-12">
+              <span className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.3em] uppercase">
+                {story.num} / {story.topic}
+              </span>
+              <div>
+                <h3 className="font-['Playfair_Display'] text-[8vw] md:text-[5.5vw] text-black leading-tight italic">
+                  {story.headline}
+                </h3>
+                <p className="font-['DM_Serif_Display'] text-xl md:text-2xl text-black/50 mt-6 max-w-xl">
+                  {story.body}
+                </p>
+              </div>
+              <img
+                src={story.image}
+                alt={story.topic}
+                className="w-full h-48 md:h-72 object-cover mt-8"
+              />
             </div>
-            <img src={JHARKHAND_IMAGES[1]} className="w-full h-48 md:h-64 object-cover contrast-110 mt-8" />
-          </div>
-        </FlowSection>
-
-        <FlowSection
-          className="bg-[#ffffff] border border-black/5"
-          aria-label="Waterfalls"
-        >
-          <div className="flex flex-col h-full justify-between p-8 md:p-12">
-            <span className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.3em] uppercase">02 / WATERFALLS</span>
-            <div>
-              <h2 className="font-['Playfair_Display'] text-[8vw] md:text-[6vw] text-black leading-tight">
-                Water writing history in stone
-              </h2>
-              <p className="font-['DM_Serif_Display'] text-xl md:text-2xl text-black/50 mt-6 max-w-lg">
-                Over 40 named waterfalls. Hundru, Jonha, Dassam, Panchghagh — each carved by the Subarnarekha.
-              </p>
-            </div>
-            <img src={JHARKHAND_IMAGES[0]} className="w-full h-48 md:h-64 object-cover contrast-110 mt-8" />
-          </div>
-        </FlowSection>
-
-        <FlowSection
-          className="bg-[#f5f5f5] border border-black/5"
-          aria-label="Culture"
-        >
-          <div className="flex flex-col h-full justify-between p-8 md:p-12">
-            <span className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.3em] uppercase">03 / CULTURE</span>
-            <div>
-              <h2 className="font-['Playfair_Display'] text-[8vw] md:text-[6vw] text-black leading-tight">
-                32 tribes. One heartbeat.
-              </h2>
-              <p className="font-['DM_Serif_Display'] text-xl md:text-2xl text-black/50 mt-6 max-w-lg">
-                Santhali, Munda, Ho, Oraon — traditions older than written history, still alive in every festival.
-              </p>
-            </div>
-            <img src={JHARKHAND_IMAGES[3]} className="w-full h-48 md:h-64 object-cover contrast-110 mt-8" />
-          </div>
-        </FlowSection>
-
-        <FlowSection
-          className="bg-white border border-black/5"
-          aria-label="Wildlife"
-        >
-          <div className="flex flex-col h-full justify-between p-8 md:p-12">
-            <span className="font-['Space_Mono'] text-[9px] text-black/30 tracking-[0.3em] uppercase">04 / WILDLIFE</span>
-            <div>
-              <h2 className="font-['Playfair_Display'] text-[8vw] md:text-[6vw] text-black leading-tight">
-                Bengal tigers still roam here.
-              </h2>
-              <p className="font-['DM_Serif_Display'] text-xl md:text-2xl text-black/50 mt-6 max-w-lg">
-                Betla National Park — one of India&apos;s first tiger reserves. Elephants, leopards, gaur.
-              </p>
-            </div>
-            <img src={JHARKHAND_IMAGES[5]} className="w-full h-48 md:h-64 object-cover contrast-110 mt-8" />
-          </div>
-        </FlowSection>
-
+          </FlowSection>
+        ))}
       </FlowArt>
     </section>
-  )
+  );
 }
-
