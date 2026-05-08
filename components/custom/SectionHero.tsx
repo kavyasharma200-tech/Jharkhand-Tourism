@@ -1,9 +1,10 @@
 'use client'
 
+import { useRef } from 'react'
 import ScrollExpandMedia from '@/components/scroll-expansion-hero'
 
 export default function SectionHero() {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   return (
     <section ref={sectionRef} className="relative w-full h-screen overflow-hidden">
       <ScrollExpandMedia

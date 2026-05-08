@@ -4,11 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, useTransform, useSpring, useMotionValue } from "framer-motion";
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// --- Utility ---
-// function cn(...inputs: ClassValue[]) {
-//     return twMerge(clsx(inputs));
-// }
+import { JHARKHAND_IMAGES } from "@/data/images.data";
 
 // --- Types ---
 export type AnimationPhase = "scatter" | "line" | "circle" | "bottom-strip";
@@ -20,6 +16,11 @@ interface FlipCardProps {
     phase: AnimationPhase;
     target: { x: number; y: number; rotation: number; scale: number; opacity: number };
 }
+
+// Jharkhand Locations
+const LOCATION_NAMES = [
+  "Hundru Falls", "Betla Forest", "Jonha Falls", "Panchghagh", "Dalma Hills", "Ranchi", "Patratu Valley", "Deoghar", "Hazaribagh", "Netarhat"
+];
 
 // --- FlipCard Component ---
 const IMG_WIDTH = 60;  // Reduced from 100
@@ -98,14 +99,8 @@ function FlipCard({
 const TOTAL_IMAGES = 20;
 const MAX_SCROLL = 3000; // Virtual scroll range
 
-import { JHARKHAND_IMAGES } from "@/data/images.data";
-
-// Jharkhand Images and Locations
+// Jharkhand Images
 const IMAGES = JHARKHAND_IMAGES;
-
-const LOCATION_NAMES = [
-  "Hundru Falls", "Betla Forest", "Jonha Falls", "Panchghagh", "Dalma Hills", "Ranchi", "Patratu Valley", "Deoghar", "Hazaribagh", "Netarhat"
-];
 
 // Helper for linear interpolation
 const lerp = (start: number, end: number, t: number) => start * (1 - t) + end * t;

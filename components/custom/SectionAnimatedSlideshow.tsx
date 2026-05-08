@@ -21,7 +21,7 @@ const slides = [
 ];
 
 export default function SectionAnimatedSlideshow() {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const sliderRef = useRef<HTMLDivElement>(null)
 

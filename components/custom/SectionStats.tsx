@@ -14,7 +14,7 @@ const stats = [
 ];
 
 export default function SectionStats() {
-  const sectionRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
   const numbersRef = useRef<(HTMLSpanElement | null)[]>([])
   const headerRef = useRef<HTMLDivElement>(null)
   const statsRef = useRef<HTMLDivElement>(null)
