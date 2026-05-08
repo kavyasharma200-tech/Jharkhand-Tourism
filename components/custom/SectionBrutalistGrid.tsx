@@ -114,8 +114,12 @@ export default function SectionBrutalistGrid() {
 
       {/* Central editorial heading */}
       <div data-grid-heading className="absolute left-[29%] bottom-[15%] z-20">
-        <h2 className="font-['Playfair_Display'] text-[7vw] text-black leading-[0.85] italic font-black uppercase">
-          Raw.<br />Brutal.<br />Alive.
+        <h2 className="leading-[0.85] tracking-tight flex flex-col items-start uppercase">
+          <span className="font-['Anton'] text-[8vw] text-black">RAW.</span>
+          <span className="font-['var(--font-bodoni)'] italic text-[7vw] text-black font-light ml-8">
+            Brutal.
+          </span>
+          <span className="font-['Anton'] text-[8vw] text-black mt-1">ALIVE.</span>
         </h2>
         <div data-grid-label className="mt-6 flex items-center gap-3">
           <span className="block w-10 h-px bg-black/40" />

@@ -17,8 +17,9 @@ export default function SectionStoryScroll() {
           </p>
           <hr className="my-[2vw] border-t border-white/20" />
           <div>
-            <h2 className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)] leading-[0.85] uppercase tracking-tight">
-              Saranda.<br />The<br />Unbroken.
+            <h2 className="leading-[0.85] tracking-tight flex flex-col uppercase">
+              <span className="font-['var(--font-bodoni)'] italic font-light text-[clamp(3rem,9vw,9rem)] ml-4">Saranda.</span>
+              <span className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)] -mt-2">THE UNBROKEN.</span>
             </h2>
           </div>
           <hr className="my-[2vw] border-t border-white/20" />
@@ -47,8 +48,9 @@ export default function SectionStoryScroll() {
           </p>
           <hr className="my-[2vw] border-t border-black/15" />
           <div>
-            <h2 className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)] leading-[0.85] uppercase tracking-tight">
-              Chase<br />The<br />Monsoon.
+            <h2 className="leading-[0.85] tracking-tight flex flex-col uppercase">
+              <span className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)]">CHASE</span>
+              <span className="font-['var(--font-bodoni)'] italic font-light text-[clamp(3rem,9vw,9rem)] ml-8 -mt-2">The Monsoon.</span>
             </h2>
           </div>
           <hr className="my-[2vw] border-t border-black/15" />
@@ -77,8 +79,9 @@ export default function SectionStoryScroll() {
           </p>
           <hr className="my-[2vw] border-t border-black/15" />
           <div>
-            <h2 className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)] leading-[0.85] uppercase tracking-tight">
-              32 Tribes.<br />One<br />Heartbeat.
+            <h2 className="leading-[0.85] tracking-tight flex flex-col uppercase">
+              <span className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)]">32 TRIBES.</span>
+              <span className="font-['var(--font-bodoni)'] italic font-light text-[clamp(3rem,9vw,9rem)] ml-8 -mt-2">One heartbeat.</span>
             </h2>
           </div>
           <hr className="my-[2vw] border-t border-black/15" />
@@ -107,8 +110,9 @@ export default function SectionStoryScroll() {
           </p>
           <hr className="my-[2vw] border-t border-white/20" />
           <div>
-            <h2 className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)] leading-[0.85] uppercase tracking-tight">
-              Enter<br />Betla<br />At 5am.
+            <h2 className="leading-[0.85] tracking-tight flex flex-col uppercase">
+              <span className="font-['var(--font-bodoni)'] italic font-light text-[clamp(3rem,9vw,9rem)] ml-4">Enter Betla</span>
+              <span className="font-['Anton'] text-[clamp(3.5rem,12vw,13rem)] -mt-2">AT 5AM.</span>
             </h2>
           </div>
           <hr className="my-[2vw] border-t border-white/20" />

@@ -32,6 +32,15 @@ export default function ScrollExpandMedia({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
 
+  // React doesn't serialize `muted` to the DOM correctly in all versions
+  // Set it directly on the element after mount
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 

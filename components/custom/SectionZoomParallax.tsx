@@ -65,8 +65,13 @@ export default function SectionZoomParallax() {
         <p className="font-mono text-[8px] text-white/30 tracking-[0.5em] uppercase mb-3">
           05 / LANDSCAPES
         </p>
-        <h2 className="font-['Anton'] text-[13vw] md:text-[8vw] leading-none text-white tracking-tight uppercase">
-          Landscapes
+        <h2 className="leading-none tracking-tight flex items-baseline flex-wrap">
+          <span className="font-['Anton'] text-[14vw] md:text-[9vw] text-white tracking-[-0.02em] uppercase">
+            LAND
+          </span>
+          <span className="font-['var(--font-bodoni)'] italic text-[10vw] md:text-[6.5vw] text-white font-light">
+            scapes
+          </span>
         </h2>
         <p className="font-mono text-[10px] text-white/30 tracking-[0.4em] mt-4 uppercase">
           Unbroken / Canopy / Horizon
