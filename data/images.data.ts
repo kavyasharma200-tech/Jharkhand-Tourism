@@ -11,12 +11,24 @@ export const JHARKHAND_IMAGES = [
   "/assets/Rajrappa/rajrappa-mandir-ramgarh-jharkhand.avif",
   "/assets/Ghatshila and East Singhbhum/Ghatshila Rajabari.jpg",
   "/assets/Ranchi/Dassam_falls_.jpg",
+  "/assets/Ranchi/Jonha Falls.webp",
+  "/assets/Ranchi/Tagore hill.jpg",
+  "/assets/Deoghar/Tapovan hills and caves.jpg",
+  "/assets/Deoghar/Nandan Pahad.avif",
+  "/assets/Netarhat/Netarhat.jpg",
+  "/assets/Netarhat/Lower Ghaghri.jpg",
+  "/assets/Jamshedpur/tata steel zoological park.jpg",
+  "/assets/Rajrappa/rajrappa-temple-rajrappa-ramgarh-jharkhand-temples-fDT86MzY9w.avif",
+  "/assets/Ghatshila and East Singhbhum/Burudi Lake.jpg",
+  "/assets/Ghatshila and East Singhbhum/Rankini Temple.jpg",
+  "/assets/Ranchi/Kanke Dam.avif",
+  "/assets/Ranchi/Dassam Falls.jpg",
 ];
 
 export const CITY_IMAGES = [
-  { id: 1, src: "/assets/Ranchi/tagore-hill.jpg", alt: "RANCHI — THE CITY OF WATERFALLS" },
+  { id: 1, src: "/assets/Ranchi/Tagore hill.jpg", alt: "RANCHI — THE CITY OF WATERFALLS" },
   { id: 2, src: "/assets/Jamshedpur/Jubilee Park.jpg", alt: "JAMSHEDPUR — THE STEEL CITY" },
   { id: 3, src: "/assets/Netarhat/Netarhat.avif", alt: "NETARHAT — QUEEN OF CHOTANAGPUR" },
   { id: 4, src: "/assets/Deoghar/naulakha-mandir-deoghar-jharkhand-1-attr-hero.jpg", alt: "DEOGHAR — THE ABODE OF GODS" },
-  { id: 5, src: "/assets/Deoghar/Trikut hills.jpg", alt: "SHIKHARJI — SACRED PEAK" },
+  { id: 5, src: "/assets/Ghatshila and East Singhbhum/Ghatshila Rajabari.jpg", alt: "GHATSHILA — RIVER & ROCK" },
 ];

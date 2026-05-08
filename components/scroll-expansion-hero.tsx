@@ -10,6 +10,7 @@ import {
 } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { scrollLock } from '@/lib/scroll-lock';
 
 interface ScrollExpandMediaProps {
   mediaType?: 'video' | 'image';
@@ -46,12 +47,16 @@ const ScrollExpandMedia = ({
     setScrollProgress(0);
     setShowContent(false);
     setMediaFullyExpanded(false);
+    // Lock scroll initially — hero controls its own scroll
+    scrollLock.lock();
+    return () => { scrollLock.unlock(); };
   }, [mediaType]);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (mediaFullyExpanded && e.deltaY < 0 && window.scrollY <= 5) {
         setMediaFullyExpanded(false);
+        scrollLock.unlock();
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
         e.preventDefault();
@@ -65,6 +70,7 @@ const ScrollExpandMedia = ({
         if (newProgress >= 1) {
           setMediaFullyExpanded(true);
           setShowContent(true);
+          scrollLock.unlock();
         } else if (newProgress < 0.75) {
           setShowContent(false);
         }

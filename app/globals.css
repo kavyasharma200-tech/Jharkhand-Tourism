@@ -64,14 +64,9 @@
 
 
 
-/* Custom Additions */
-* { cursor: none !important; }
-
-/* Custom Cursor Styles */
-.custom-cursor {
-  mix-blend-difference: difference;
-  background-color: black;
-  border: 2px solid black;
+/* Scroll locked state — used by scroll-lock.ts */
+html.scroll-locked {
+  overflow: hidden;
 }
 
 img {
@@ -91,5 +86,3 @@ img {
   background: #000;
   color: #fff;
 }
-
-@media (hover: none) { * { cursor: auto !important; } }
