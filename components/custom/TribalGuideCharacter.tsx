@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "AIzaSyASehkfu51fvg_qwnIQpEVKVNxEe4rq6iA";
 
 const systemPrompt = `You are Sarita Didi, a friendly and knowledgeable tribal guide from Jharkhand. 
 You speak in a warm, welcoming tone, occasionally using Hindi phrases like 'Namaste 🙏', 'Bahut accha!', 'Suniye!', and 'Jai Bholenath!'.
@@ -92,30 +91,41 @@ export default function TribalGuideCharacter() {
     setIsLoading(true);
 
     try {
-      // Format history for Gemini
-      const historyContents = messages.map(m => ({
-        role: m.role,
-        parts: [{ text: m.text }]
-      }));
-      
-      // Add current user message
-      historyContents.push({ role: 'user', parts: [{ text: userMsg }] });
+      // Reverting to the standard stable Chat Completions structure
+      const openAiMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages.map(m => ({
+          role: m.role === 'model' ? 'assistant' : 'user',
+          content: m.text
+        })),
+        { role: 'user', content: userMsg }
+      ];
 
       const payload = {
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: historyContents,
+        model: "gpt-4o-mini",
+        messages: openAiMessages,
+        temperature: 0.7,
       };
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
+      const res = await fetch("/api/chat", {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messages: openAiMessages
+        })
       });
 
       const data = await res.json();
       
-      if (data.candidates && data.candidates[0].content.parts[0].text) {
-        setMessages(prev => [...prev, { role: 'model', text: data.candidates[0].content.parts[0].text }]);
+      if (data.error) {
+        setMessages(prev => [...prev, { role: 'model', text: "Namaste! It seems I'm having a little trouble connecting right now. Please try again in a moment." }]);
+        return;
+      }
+
+      if (data.choices && data.choices[0].message.content) {
+        setMessages(prev => [...prev, { role: 'model', text: data.choices[0].message.content }]);
       } else {
         setMessages(prev => [...prev, { role: 'model', text: "Maaf karna, I didn't quite catch that. Could you ask again?" }]);
       }
